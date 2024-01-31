@@ -3,6 +3,7 @@ const Car = require("../_models/Car");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
 const { protect } = require("../_middlewares/authMiddleware");
+const { filterObjectFields } = require("../utils/filterObjectFields");
 
 class CarFeatures {
     constructor(query, queryString) {
@@ -87,6 +88,34 @@ router.post("/", async (req, res) => {
             status: "success",
             data: {
                 newCar,
+            },
+        });
+    } catch (err) {
+        res.status(400).json({
+            status: "fail",
+            message: extractErrorMsg(err),
+        });
+    }
+});
+
+router.patch("/:id", protect, async (req, res) => {
+    try {
+        const filteredObject = filterObjectFields(req.body, "number", "model");
+
+        const updatedCar = await Car.findByIdAndUpdate(
+            req.params.id,
+            {
+                ...filteredObject,
+            },
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
+        res.status(201).json({
+            status: "success",
+            data: {
+                updatedCar,
             },
         });
     } catch (err) {
