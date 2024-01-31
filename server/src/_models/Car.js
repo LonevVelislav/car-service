@@ -1,88 +1,250 @@
 const mongoose = require("mongoose");
 
-const carSchema = new mongoose.Schema({
-    number: {
-        type: String,
-        required: [true, "registration number not specified"],
-        minLength: [8, "registration number must be of 8 symbols"],
-        maxLength: [8, "registration number must be of 8 symbols"],
-        unique: true,
-        trim: true,
-    },
-    model: {
-        type: String,
-        required: [true, "model is not specified!"],
-        trim: true,
-    },
-    MOT: {
-        date: Date,
-        kilometars: Number,
-        info: String,
-    },
-    oilFilterChange: {
-        engineOil: {
-            model: String,
-            date: Date,
-            mileage: Number,
+const carSchema = new mongoose.Schema(
+    {
+        number: {
+            type: String,
+            required: [true, "registration number not specified"],
+            minLength: [8, "registration number must be of 8 symbols"],
+            maxLength: [8, "registration number must be of 8 symbols"],
+            unique: true,
+            trim: true,
         },
-        oilFilter: {
-            model: String,
-            date: Date,
-            mileage: Number,
-        },
-        airFilter: {
-            model: String,
-            date: Date,
-            mileage: Number,
-        },
-        fuelFilter: {
-            model: String,
-            date: Date,
-            mileage: Number,
-        },
-        repears: [],
-    },
-    diagnostics: {
-        info: String,
-        repears: [],
-    },
-    engine: {
-        infor: String,
-        repears: [],
-    },
-    breaks: {
-        fluid: {
-            model: String,
-            date: Date,
-            mileage: Number,
-        },
-        pads: {},
-        disks: {},
-        repears: [],
-    },
-    tyres: {
         model: {
-            model: String,
-            date: Date,
+            type: String,
+            required: [true, "model is not specified!"],
+            trim: true,
         },
-        pressure: {
-            amount: Number,
-            date: Date,
-        },
-        alignment: {
-            date: Date,
-        },
-        repears: [],
-    },
-    driveSystem: {
-        clutchFluid: {
-            model: String,
+        MOT: {
             date: Date,
             mileage: Number,
+            information: String,
         },
-        repears: [],
+
+        airConditioning: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+
+        breaks: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+
+        clutches: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        engine: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        exhaust: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        suspension: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        tyres: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        fuelSystem: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        battery: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        gearbox: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        cambelts: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        oilChange: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+
+        coolingSystem: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+        crashRepear: {
+            mileage: {
+                type: Number,
+                default: 10000,
+            },
+            repears: [
+                {
+                    information: String,
+                    date: {
+                        type: Date,
+                        default: Date.now(),
+                    },
+                },
+            ],
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now(),
+        },
     },
-});
+    {
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    }
+);
 
 const Car = mongoose.model("Car", carSchema);
 
