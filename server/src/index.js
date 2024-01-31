@@ -14,10 +14,12 @@ app.use(express.json());
 
 mongoose
     .connect(process.env.DB)
-    .then(() => console.log("DB connected!"))
+    .then(async () => {
+        console.log("DB connected!");
+    })
     .catch((err) => console.log("DB failed to connect!"));
 
-app.use("/", router);
+app.use("/car-service", router);
 app.use("*", (req, res) => {
     res.redirect("/404");
 });

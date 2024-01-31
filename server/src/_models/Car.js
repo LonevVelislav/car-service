@@ -4,6 +4,10 @@ const carSchema = new mongoose.Schema({
     number: {
         type: String,
         required: [true, "registration number not specified"],
+        minLength: [8, "registration number must be of 8 symbols"],
+        maxLength: [8, "registration number must be of 8 symbols"],
+        unique: true,
+        trim: true,
     },
     model: {
         type: String,
@@ -79,3 +83,7 @@ const carSchema = new mongoose.Schema({
         repears: [],
     },
 });
+
+const Car = mongoose.model("Car", carSchema);
+
+module.exports = Car;
