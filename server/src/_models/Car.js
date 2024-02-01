@@ -246,6 +246,13 @@ const carSchema = new mongoose.Schema(
     }
 );
 
+carSchema.pre("save", function (next) {
+    if (this.number) {
+        this.number = this.number.toUpperCase();
+    }
+    next();
+});
+
 const Car = mongoose.model("Car", carSchema);
 
 module.exports = Car;
