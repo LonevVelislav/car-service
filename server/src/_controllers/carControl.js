@@ -2,8 +2,9 @@ const router = require("express").Router();
 const Car = require("../_models/Car");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
-const { protect } = require("../_middlewares/authMiddleware");
+const { protect, carProtect } = require("../_middlewares/authMiddleware");
 const { filterObjectFields } = require("../utils/filterObjectFields");
+const { createAndSendToken } = require("../utils/userToken");
 
 class CarFeatures {
     constructor(query, queryString) {
@@ -89,7 +90,7 @@ router.get("/", protect, async (req, res) => {
     }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", protect, async (req, res) => {
     try {
         const car = await Car.findById(req.params.id);
         res.status(200).json({
@@ -106,16 +107,11 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/register", async (req, res) => {
     try {
         const newCar = await Car.create(req.body);
 
-        res.status(200).json({
-            status: "success",
-            data: {
-                newCar,
-            },
-        });
+        createAndSendToken(newCar, 200, res);
     } catch (err) {
         res.status(400).json({
             status: "fail",
@@ -124,9 +120,28 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.patch("/:id", async (req, res) => {
+router.post("/login", async (req, res) => {
     try {
-        const filteredObject = filterObjectFields(req.body, "number", "model");
+        const { number, pin } = req.body;
+        if (!number || !pin) {
+            throw new Error("Provide registration number and pin!");
+        }
+        const car = await Car.findOne({ number }).select("+pin");
+        if (!car || !(await car.correctPin(pin, car.pin))) {
+            throw new Error("Incorrect pin!");
+        }
+        createAndSendToken(car, 200, res);
+    } catch (err) {
+        res.status(400).json({
+            status: "fail",
+            message: extractErrorMsg(err),
+        });
+    }
+});
+
+router.patch("/:id", carProtect, async (req, res) => {
+    try {
+        const filteredObject = filterObjectFields(req.body, "number", "pin");
 
         const updatedCar = await Car.findByIdAndUpdate(
             req.params.id,

@@ -1,243 +1,41 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const carSchema = new mongoose.Schema(
     {
         number: {
             type: String,
-            required: [true, "registration number not specified"],
-            minLength: [8, "registration number must be of 8 symbols"],
-            maxLength: [8, "registration number must be of 8 symbols"],
+            required: [true, "registration number not specified!"],
+            minLength: [8, "registration number must be of 8 symbols!"],
+            maxLength: [8, "registration number must be of 8 symbols!"],
             unique: true,
             trim: true,
         },
+        pin: {
+            type: String,
+            required: [true, "pin number not specified!"],
+            minLength: [4, "pin must be 4 numbers!"],
+            maxLength: [4, "pin must be 4 numbers!"],
+            trim: true,
+            validate: {
+                validator: function (value) {
+                    return isNaN(Number(value)) === false && Number(value) % 1 === 0;
+                },
+                message: "ivalid pin!",
+            },
+            select: false,
+        },
+
         model: {
             type: String,
-            required: [true, "model is not specified!"],
             trim: true,
         },
-        MOT: {
-            date: Date,
-            mileage: Number,
-            information: String,
-        },
-
-        airConditioning: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-
-        breaks: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-
-        clutches: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
         engine: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
+            type: String,
+            trim: true,
         },
-        exhaust: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        suspension: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        tyres: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        fuelSystem: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        battery: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        gearbox: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        cambelts: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        oilChange: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-
-        coolingSystem: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-        crashRepear: {
-            mileage: {
-                type: Number,
-                default: 10000,
-            },
-            repears: [
-                {
-                    information: String,
-                    date: {
-                        type: Date,
-                        default: Date.now(),
-                    },
-                },
-            ],
-        },
-
-        createdAt: {
-            type: Date,
-            default: Date.now(),
+        km: {
+            type: Number,
         },
     },
     {
@@ -245,13 +43,25 @@ const carSchema = new mongoose.Schema(
         toObject: { virtuals: true },
     }
 );
+carSchema.pre("save", async function (next) {
+    this.number = this.number.toUpperCase();
+    this.pin = await bcrypt.hash(this.pin, 10);
+    next();
+});
 
-carSchema.pre("save", function (next) {
-    if (this.number) {
-        this.number = this.number.toUpperCase();
+carSchema.pre(/^find/, function (next) {
+    if (this.op === "findOneAndUpdate") {
+        console.log(this);
+        if (this._update.km && this._update.km < 0) {
+            this._update.km = Math.abs(this._update.km);
+        }
     }
     next();
 });
+
+carSchema.methods.correctPin = async function (incomingPin, correctPin) {
+    return await bcrypt.compare(incomingPin, correctPin);
+};
 
 const Car = mongoose.model("Car", carSchema);
 

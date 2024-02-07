@@ -6,8 +6,8 @@ const signToken = (id) => {
     });
 };
 
-exports.createAndSendToken = (admin, statusCode, res) => {
-    const token = signToken(admin._id);
+exports.createAndSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
 
     const cookieOptions = {
         expiresIn: new Date(Date.now() + process.env.TOKEN_EXPARATION * 24 * 60 * 60 * 10000),
@@ -16,11 +16,12 @@ exports.createAndSendToken = (admin, statusCode, res) => {
     };
 
     res.cookie("jwt", token, cookieOptions);
-    admin.password = undefined;
+    user.password = undefined;
+    user.pin = undefined;
 
     res.status(statusCode).json({
         status: "success",
         token,
-        data: { admin },
+        data: { user },
     });
 };

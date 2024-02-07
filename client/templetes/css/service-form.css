@@ -1,0 +1,61 @@
+.service-heading {
+  font-size: 2.8rem;
+}
+.add-service-form {
+  margin: 0 auto;
+  padding: 2.4rem;
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  gap: 2rem;
+  font-size: 2.4rem;
+}
+.form-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+  color: #0e325d;
+}
+.service-form-element {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.service-form-element ion-icon {
+  font-size: 3rem;
+}
+
+.service-form-element input[type="submit"] {
+  margin-top: 2.2rem;
+  padding: 0.8rem 1.2rem;
+  background-color: #f3ba69;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.service-form-element input[type="submit"]:hover,
+.service-form-element input[type="submit"] :active {
+  background-color: #92703f;
+  color: #fff;
+}
+.add-service-form input,
+.add-service-form select {
+  resize: none;
+  outline: none;
+  border: 2px solid #0e325d;
+  font-size: 2rem;
+  padding: 0.4rem;
+  border-radius: 3px;
+}
+
+.add-service-form textarea {
+  resize: none;
+  outline: none;
+  border: 2px solid #0e325d;
+  border-radius: 3px;
+  font-size: 1.6rem;
+}
+.service-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
