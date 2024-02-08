@@ -14,13 +14,13 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="./css/general.css" />
     <link rel="stylesheet" href="./css/styles.css" />
-    <title>car</title>
+    <title>login-form</title>
     <script
       defer
       src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
     ></script>
   </head>
-  <body>
+  <body >
     <nav>
       <div class="logo-box">
         <img class="logo" src="./img/logo1.png" alt="logo" />
@@ -47,49 +47,25 @@
     </form>
     <section></section>
     <main>
-      <a href="#" class="add-service-btn sub-heading">
-        Add Service
-        <ion-icon name="add-outline"></ion-icon
-      ></a>
-
-      <a href="#" class="service open">
-        <img
-          class="service-icon"
-          src="./img/icons/battery-icon.png"
-          alt="battery-icon"
-        />
-        <div class="service-text">
-          <p>date: <span class="strong">12/20/2024</span></p>
-          <p>mileage: <span class="strong">170000</span></p>
+      <form action="#" class="add-service-form">
+        <div class="form-text">
+          <span class="service-heading sub-heading"
+            ><ion-icon name="car-outline"></ion-icon> select</span
+          >
+         <div class="service-form-element">
+            <label for="number">registration</label>
+            <input type="text" name="number" id="number">
+         </div>
+         <div class="service-form-element">
+            <label for="pin">pin</label>
+            <input type="text" name="pin" id="pin">
+         </div>
+        <div class="service-form-element">
+          <input type="submit" value="Select" />
         </div>
-        <ion-icon class="icon-service" name="arrow-down-outline"></ion-icon>
-        <ion-icon class="icon-service" name="close-outline"></ion-icon>
-        <div class="hidden-box">
-          <ul>
-            <li>
-              <ion-icon name="build-outline"></ion-icon>mechanical part:
-              <span class="strong">fuel filter</span>
-            </li>
-            <li>
-              <ion-icon name="build-outline"></ion-icon>mechanical part:
-              <span class="strong">fuel filter</span>
-            </li>
-            <li>
-              <ion-icon name="build-outline"></ion-icon>mechanical part:
-              <span class="strong">fuel filter</span>
-            </li>
-            <li>
-              <button><ion-icon name="add-outline"></ion-icon></button>
-              <input
-                type="text"
-                name="part"
-                id="part"
-                placeholder="add mechanical part"
-              />
-            </li>
-          </ul>
-        </div>
-      </a>
+        <a href="#" class="select-link fixed--bot-right ">Register Car <ion-icon name="arrow-forward-outline"></ion-icon></a>
+      </form>
+     
     </main>
     <aside>
       <p class="aside-text">

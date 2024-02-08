@@ -1,12 +1,10 @@
 const router = require("express").Router();
-const Car = require("../_models/Car");
+const Service = require("../_models/Service");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
 const { protect, carProtect } = require("../_middlewares/authMiddleware");
-const { filterObjectFields } = require("../utils/filterObjectFields");
-const { createAndSendToken } = require("../utils/userToken");
 
-class CarFeatures {
+class ServiceFeatures {
     constructor(query, queryString) {
         (this.query = query), (this.queryString = queryString);
     }
@@ -26,6 +24,7 @@ class CarFeatures {
     }
 
     sort() {
+        console.log(this.queryString.sort);
         if (this.queryString.sort) {
             this.query = this.query.sort(this.queryString.sort);
         } else {
@@ -52,33 +51,23 @@ class CarFeatures {
         this.query = this.query.skip(skip).limit(limit);
         return this;
     }
-
-    searchByNumber() {
-        if (this.queryString.number) {
-            const carNumber = this.queryString.number;
-            const regex = new RegExp(carNumber, "i");
-            this.query = this.query.find({ number: regex });
-        }
-        return this;
-    }
 }
 
-router.get("/", protect, async (req, res) => {
+router.get("/:id", carProtect, async (req, res) => {
     try {
-        const features = new CarFeatures(Car.find(), req.query)
+        const features = new ServiceFeatures(Service.find({ car: req.params.id }), req.query)
             .filter()
             .sort()
             .filterFields()
-            .paginate()
-            .searchByNumber();
+            .paginate();
 
-        const cars = await features.query;
+        const services = await features.query;
 
         res.status(200).json({
             status: "success",
-            results: cars.length,
+            results: services.length,
             data: {
-                cars,
+                services,
             },
         });
     } catch (err) {
@@ -89,47 +78,18 @@ router.get("/", protect, async (req, res) => {
     }
 });
 
-router.get("/:id", protect, async (req, res) => {
+router.post("/:id", carProtect, async (req, res) => {
     try {
-        const car = await Car.findById(req.params.id);
+        const newService = await Service.create({
+            ...req.body,
+            car: req.params.id,
+        });
         res.status(200).json({
             status: "success",
             data: {
-                car,
+                newService,
             },
         });
-    } catch (err) {
-        res.status(400).json({
-            status: "fail",
-            message: extractErrorMsg(err),
-        });
-    }
-});
-
-router.post("/register", async (req, res) => {
-    try {
-        const newCar = await Car.create(req.body);
-
-        createAndSendToken(newCar, 200, res);
-    } catch (err) {
-        res.status(400).json({
-            status: "fail",
-            message: extractErrorMsg(err),
-        });
-    }
-});
-
-router.post("/login", async (req, res) => {
-    try {
-        const { number, pin } = req.body;
-        if (!number || !pin) {
-            throw new Error("Provide registration number and pin!");
-        }
-        const car = await Car.findOne({ number }).select("+pin");
-        if (!car || !(await car.correctPin(pin, car.pin))) {
-            throw new Error("Incorrect pin!");
-        }
-        createAndSendToken(car, 200, res);
     } catch (err) {
         res.status(400).json({
             status: "fail",
@@ -140,22 +100,16 @@ router.post("/login", async (req, res) => {
 
 router.patch("/:id", carProtect, async (req, res) => {
     try {
-        const filteredObject = filterObjectFields(req.body, "number", "pin");
+        const service = await Service.findById(req.params.id);
 
-        const updatedCar = await Car.findByIdAndUpdate(
-            req.params.id,
-            {
-                ...filteredObject,
-            },
-            {
-                new: true,
-                runValidators: true,
-            }
-        );
+        service.parts.push(req.body.part);
+
+        await service.save();
+
         res.status(201).json({
             status: "success",
             data: {
-                updatedCar,
+                service,
             },
         });
     } catch (err) {

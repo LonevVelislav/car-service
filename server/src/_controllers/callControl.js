@@ -2,7 +2,7 @@ const router = require("express").Router();
 const Call = require("../_models/Call");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
-const { protect } = require("../_middlewares/authMiddleware");
+const { protect, carProtect } = require("../_middlewares/authMiddleware");
 
 router.get("/", protect, async (req, res) => {
     try {
@@ -42,7 +42,7 @@ router.patch("/:id", protect, async (req, res) => {
     }
 });
 
-router.post("/:carId", async (req, res) => {
+router.post("/:carId", carProtect, async (req, res) => {
     try {
         const call = await Call.create({
             ...req.body,

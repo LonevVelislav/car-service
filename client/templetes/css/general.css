@@ -28,7 +28,7 @@ body {
   overflow: hidden;
   height: 100vh;
   display: grid;
-  grid-template-columns: 8rem 10% 1fr 20%;
+  grid-template-columns: 8rem 15% 1fr 20%;
   grid-template-rows: 8rem 1fr;
 }
 
@@ -94,7 +94,24 @@ section {
   gap: 4rem;
   overflow-x: scroll;
 }
+aside {
+  background-color: #e9ecef;
+}
+
+.sub-heading {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1;
+  --ionicon-stroke-width: 40px;
+}
 
 .strong {
   font-weight: 700;
+}
+
+.fixed--bot-right {
+  position: absolute;
+  bottom: 0;
+  transform: translate(50%);
+  right: 50%;
 }

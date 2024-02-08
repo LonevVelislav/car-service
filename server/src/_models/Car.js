@@ -3,6 +3,10 @@ const bcrypt = require("bcrypt");
 
 const carSchema = new mongoose.Schema(
     {
+        createdAt: {
+            type: Date,
+            default: Date.now(),
+        },
         number: {
             type: String,
             required: [true, "registration number not specified!"],

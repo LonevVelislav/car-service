@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
-const serviceCardSchema = new mongoose.Schema(
+const serviceSchema = new mongoose.Schema(
     {
-        date: Date,
-        car: {
-            type: mongoose.Schema.ObjectId,
-            ref: "Car",
+        createdAt: {
+            type: Date,
+            default: Date.now(),
         },
         km: Number,
         type: {
@@ -33,6 +32,7 @@ const serviceCardSchema = new mongoose.Schema(
             },
             trim: true,
         },
+        parts: [{ type: String }],
 
         info: String,
         car: {
@@ -47,6 +47,13 @@ const serviceCardSchema = new mongoose.Schema(
     }
 );
 
-const Service = mongoose.model("Service", serviceCardSchema);
+serviceSchema.pre("save", function (next) {
+    if (this.km && this.km < 0) {
+        this.km = Math.abs(this.km);
+    }
+    next();
+});
+
+const Service = mongoose.model("Service", serviceSchema);
 
 module.exports = Service;

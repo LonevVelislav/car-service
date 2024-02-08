@@ -44,17 +44,23 @@ exports.carProtect = async (req, res, next) => {
         }
 
         if (!token) {
-            throw new Error("Unauthorized! Register a car!");
+            throw new Error("Unauthorized!");
         }
         const decoded = await promisify(jwt.verify)(token, process.env.SECRET);
         const currentCar = await Car.findById(decoded.id);
+        const currentAdmin = await Admin.findById(decoded.id);
 
-        if (!currentCar) {
-            throw new Error("The car belonging to the token does no longer exists!");
+        if (!currentCar && !currentAdmin) {
+            throw new Error("The user belonging to the token does no longer exists!");
         }
-
-        req.car = currentCar;
-        console.log(req.car);
+        if (currentAdmin) {
+            req.admin = currentAdmin;
+            console.log(req.admin);
+        }
+        if (currentCar) {
+            req.car = currentCar;
+            console.log(req.car);
+        }
 
         next();
     } catch (err) {
