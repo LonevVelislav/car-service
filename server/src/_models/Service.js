@@ -13,7 +13,9 @@ const serviceSchema = new mongoose.Schema(
             enum: {
                 values: [
                     "MOT",
+                    "tax",
                     "roadtax",
+                    "insurance",
                     "brakes",
                     "clutches",
                     "engine",

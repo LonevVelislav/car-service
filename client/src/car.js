@@ -31,8 +31,6 @@ export async function renderCar(ctx, next) {
               <label for="type">type</label>
               <select id="type" name="type">
                 <option>repairs</option>
-                <option>MOT</option>
-                <option>roadtax</option>
                 <option>oil</option>
                 <option>battery</option>
                 <option>brakes</option>
@@ -47,6 +45,10 @@ export async function renderCar(ctx, next) {
                 <option>gearbox</option>
                 <option>steering</option>
                 <option>suspension</option>
+                <option>MOT</option>
+                <option>roadtax</option>
+                <option>tax</option>
+                <option value="insurance">autocasco/insurance</option>
               </select>
             </div>
             <div class="service-form-element">
@@ -73,13 +75,38 @@ export async function renderCar(ctx, next) {
           </form>
         </div>
       </a>
-      ${services ? services.map(serviceTemplete) : ""}
+      ${services ? services.map((service) => serviceTemplete(service)) : ""}
     </main>
     <aside>
       <p class="aside-text"></p>
     </aside>`;
 
   ctx.renderBody(templete);
+
+  document.addEventListener("click", async (e) => {
+    try {
+      if (
+        e.target.nodeName === "BUTTON" &&
+        e.target.classList.contains("service-delete")
+      ) {
+        const serviceId = e.target.id;
+        const res = await fetch(`${api}/service/${serviceId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+          },
+        });
+
+        if (res.ok) {
+          ctx.page.redirect("/car");
+        } else {
+          throw new Error("Unauthorized!");
+        }
+      }
+    } catch (err) {
+      alert(err.message);
+    }
+  });
 
   async function onCreate(e) {
     e.preventDefault();
@@ -152,6 +179,11 @@ const serviceTemplete = (service) => html`<a
         <input type="text" placeholder="add mechanical part" />
       </li>
     </ul>
+    <div class="flex-end">
+      <button id=${service._id} class="service-delete">
+        <ion-icon name="trash-outline"></ion-icon>
+      </button>
+    </div>
   </div>
 </a>`;
 
@@ -189,6 +221,10 @@ async function onServiceClick(e) {
       if (res.status === "success") {
         asideText.textContent = res.data.service.info;
         if (res.data.service.parts.length > 0) {
+          const listArray = Array.from(hiddenBoxList.children);
+          for (let i = 0; i < listArray.length - 1; i++) {
+            hiddenBoxList.removeChild(listArray[i]);
+          }
           res.data.service.parts.map((el) => {
             const li = document.createElement("li");
             li.innerHTML = `<ion-icon name="build-outline"></ion-icon>mechanical part:
@@ -256,11 +292,7 @@ function closeServiceForm() {
 }
 
 function closeAllServices() {
-  document.querySelectorAll(".service").forEach((el) => {
-    el.classList.remove("open");
-    const partsList = el.querySelector(".hidden-box ul");
-    for (let i = 0; i < partsList.children.length - 1; i++) {
-      partsList.removeChild(partsList.children[i]);
-    }
-  });
+  document
+    .querySelectorAll(".service")
+    .forEach((el) => el.classList.remove("open"));
 }

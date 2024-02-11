@@ -138,3 +138,8 @@ aside {
 .unclick {
   pointer-events: none;
 }
+
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+}

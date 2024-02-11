@@ -55,11 +55,9 @@ exports.carProtect = async (req, res, next) => {
         }
         if (currentAdmin) {
             req.admin = currentAdmin;
-            console.log(req.admin);
         }
         if (currentCar) {
             req.car = currentCar;
-            console.log(req.car);
         }
 
         next();

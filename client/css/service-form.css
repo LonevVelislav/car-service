@@ -54,3 +54,23 @@
   border-radius: 3px;
   font-size: 1.6rem;
 }
+
+.service-delete {
+  display: flex;
+  align-items: center;
+  background-color: #c1121f;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.service-delete ion-icon {
+  font-size: 2.5rem;
+  color: #fff;
+}
+.service-delete:hover,
+.service-delete:active {
+  background-color: #9a0e19;
+}

@@ -103,6 +103,11 @@ router.get("/:id", carProtect, async (req, res) => {
 
 router.post("/:id", carProtect, async (req, res) => {
     try {
+        if (req.body.km) {
+            if (req.body.km > req.car.km) {
+                throw new Error("Car mileage is higher then given input!");
+            }
+        }
         const newService = await Service.create({
             ...req.body,
             car: req.params.id,
@@ -137,6 +142,21 @@ router.patch("/:id", carProtect, async (req, res) => {
         });
     } catch (err) {
         res.status(400).json({
+            status: "fail",
+            message: extractErrorMsg(err),
+        });
+    }
+});
+
+router.delete("/:id", carProtect, async (req, res) => {
+    try {
+        await Service.findByIdAndDelete(req.params.id);
+        res.status(204).json({
+            status: "success",
+            data: null,
+        });
+    } catch (err) {
+        res.status(401).json({
             status: "fail",
             message: extractErrorMsg(err),
         });
