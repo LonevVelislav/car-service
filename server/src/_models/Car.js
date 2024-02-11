@@ -14,6 +14,13 @@ const carSchema = new mongoose.Schema(
             maxLength: [8, "registration number must be of 8 symbols!"],
             unique: true,
             trim: true,
+            validate: {
+                validator: function (value) {
+                    const regex = /^[A-Za-z]{2}\d{4}[A-Za-z]{2}$/;
+                    return regex.test(value);
+                },
+                message: "Ivalid registration!",
+            },
         },
         pin: {
             type: String,
@@ -25,7 +32,7 @@ const carSchema = new mongoose.Schema(
                 validator: function (value) {
                     return isNaN(Number(value)) === false && Number(value) % 1 === 0;
                 },
-                message: "ivalid pin!",
+                message: "Ivalid pin!",
             },
             select: false,
         },
@@ -55,7 +62,6 @@ carSchema.pre("save", async function (next) {
 
 carSchema.pre(/^find/, function (next) {
     if (this.op === "findOneAndUpdate") {
-        console.log(this);
         if (this._update.km && this._update.km < 0) {
             this._update.km = Math.abs(this._update.km);
         }

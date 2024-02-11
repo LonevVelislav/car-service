@@ -4,7 +4,7 @@ const serviceSchema = new mongoose.Schema(
     {
         createdAt: {
             type: Date,
-            default: Date.now(),
+            default: new Date(),
         },
         km: Number,
         type: {
@@ -13,20 +13,22 @@ const serviceSchema = new mongoose.Schema(
             enum: {
                 values: [
                     "MOT",
-                    "airconditioning",
+                    "roadtax",
                     "brakes",
                     "clutches",
                     "engine",
                     "exhaust",
                     "suspension",
                     "tyres",
-                    "fuelsystem",
+                    "diagnostics",
                     "battery",
                     "gearbox",
                     "cambelts",
                     "oil",
                     "cooling",
-                    "repair",
+                    "repairs",
+                    "chassie",
+                    "steering",
                 ],
                 message: "invalid service!",
             },
@@ -51,6 +53,7 @@ serviceSchema.pre("save", function (next) {
     if (this.km && this.km < 0) {
         this.km = Math.abs(this.km);
     }
+
     next();
 });
 

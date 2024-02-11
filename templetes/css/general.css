@@ -1,0 +1,136 @@
+html {
+  font-size: 62.5%;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Lato", sans-serif;
+  color: #343a40;
+  line-height: 1;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  font-weight: 400;
+  overflow: hidden;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 8rem 15% 1fr 20%;
+  grid-template-rows: 8rem 1fr;
+}
+
+section,
+main {
+  padding-top: 2.4rem;
+}
+
+nav {
+  background-color: #343a40;
+  color: #fff;
+  grid-row: 1/-1;
+  display: flex;
+  justify-content: center;
+}
+
+.menu {
+  background-color: #0e325d;
+  color: #fff;
+  grid-column: 2/-1;
+  display: flex;
+  align-items: center;
+}
+.menu-form {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  padding: 0 4rem;
+  font-size: 1.8rem;
+}
+.menu-form-element {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  align-items: center;
+}
+.menu-form-element input {
+  transition: all 0.2s;
+  background-color: #0e325d;
+  padding: 0.4rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.menu-form-element input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 3px #f3ba69;
+}
+.menu-form ion-icon {
+  color: #f3ba69;
+  font-size: 2.6rem;
+}
+.menu-form a:link,
+.menu-form a:visited {
+  text-decoration: none;
+  color: #fff;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+main {
+  padding: 1.2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+section {
+  background-color: #e9ecef;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  overflow-x: scroll;
+}
+aside {
+  background-color: #e9ecef;
+}
+
+.sub-heading {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1;
+  --ionicon-stroke-width: 40px;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.fixed--bot-right {
+  position: absolute;
+  bottom: 0;
+  transform: translate(50%);
+  right: 50%;
+}
+
+.exit ion-icon:hover,
+.exit ion-icon:active {
+  color: #fff;
+}

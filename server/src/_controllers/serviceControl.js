@@ -24,7 +24,6 @@ class ServiceFeatures {
     }
 
     sort() {
-        console.log(this.queryString.sort);
         if (this.queryString.sort) {
             this.query = this.query.sort(this.queryString.sort);
         } else {
@@ -53,7 +52,7 @@ class ServiceFeatures {
     }
 }
 
-router.get("/:id", carProtect, async (req, res) => {
+router.get("/car/:id", carProtect, async (req, res) => {
     try {
         const features = new ServiceFeatures(Service.find({ car: req.params.id }), req.query)
             .filter()
@@ -68,6 +67,30 @@ router.get("/:id", carProtect, async (req, res) => {
             results: services.length,
             data: {
                 services,
+            },
+        });
+    } catch (err) {
+        res.status(400).json({
+            status: "fail",
+            message: extractErrorMsg(err),
+        });
+    }
+});
+
+router.get("/:id", carProtect, async (req, res) => {
+    try {
+        const service = await Service.findById(req.params.id).select([
+            "-createdAt",
+            "-type",
+            "-car",
+            "-km",
+            "-__v",
+        ]);
+
+        res.status(200).json({
+            status: "success",
+            data: {
+                service,
             },
         });
     } catch (err) {

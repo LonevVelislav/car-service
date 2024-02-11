@@ -141,7 +141,6 @@ router.post("/login", async (req, res) => {
 router.patch("/:id", carProtect, async (req, res) => {
     try {
         const filteredObject = filterObjectFields(req.body, "number", "pin");
-
         const updatedCar = await Car.findByIdAndUpdate(
             req.params.id,
             {
