@@ -4,6 +4,10 @@ export async function request(url, settings) {
     const data = await res.json();
     return data;
   } catch (err) {
-    alert(err.message);
+    swal(err.message, {
+      buttons: false,
+      timer: 3000,
+      className: "error-box",
+    });
   }
 }

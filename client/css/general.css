@@ -123,13 +123,6 @@ aside {
   font-weight: 700;
 }
 
-.fixed--bot-right {
-  position: absolute;
-  bottom: 0;
-  transform: translate(50%);
-  right: 50%;
-}
-
 .exit ion-icon:hover,
 .exit ion-icon:active {
   color: #fff;
@@ -142,4 +135,8 @@ aside {
 .flex-end {
   display: flex;
   justify-content: flex-end;
+}
+
+.error-box {
+  background-color: #e9ecef;
 }

@@ -89,6 +89,7 @@ export async function renderCar(ctx, next) {
         e.target.nodeName === "BUTTON" &&
         e.target.classList.contains("service-delete")
       ) {
+        closeAllServices();
         const serviceId = e.target.id;
         const res = await fetch(`${api}/service/${serviceId}`, {
           method: "DELETE",
@@ -104,7 +105,11 @@ export async function renderCar(ctx, next) {
         }
       }
     } catch (err) {
-      alert(err.message);
+      swal(err.message, {
+        buttons: false,
+        timer: 3000,
+        className: "error-box",
+      });
     }
   });
 
@@ -147,7 +152,11 @@ export async function renderCar(ctx, next) {
         throw new Error("Missing fields!");
       }
     } catch (err) {
-      alert(err.message);
+      swal(err.message, {
+        buttons: false,
+        timer: 3000,
+        className: "error-box",
+      });
     }
   }
 }
@@ -211,28 +220,35 @@ async function onServiceClick(e) {
     } else {
       closeAllServices();
       e.target.classList.add("open");
-
-      const res = await request(`${api}/service/${serviceId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-        },
-      });
-      if (res.status === "success") {
-        asideText.textContent = res.data.service.info;
-        if (res.data.service.parts.length > 0) {
-          const listArray = Array.from(hiddenBoxList.children);
-          for (let i = 0; i < listArray.length - 1; i++) {
-            hiddenBoxList.removeChild(listArray[i]);
-          }
-          res.data.service.parts.map((el) => {
-            const li = document.createElement("li");
-            li.innerHTML = `<ion-icon name="build-outline"></ion-icon>mechanical part:
+      try {
+        const res = await request(`${api}/service/${serviceId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+          },
+        });
+        if (res.status === "success") {
+          asideText.textContent = res.data.service.info;
+          if (res.data.service.parts.length > 0) {
+            const listArray = Array.from(hiddenBoxList.children);
+            for (let i = 0; i < listArray.length - 1; i++) {
+              hiddenBoxList.removeChild(listArray[i]);
+            }
+            res.data.service.parts.map((el) => {
+              const li = document.createElement("li");
+              li.innerHTML = `<ion-icon name="build-outline"></ion-icon>mechanical part:
             <span class="strong">${el}</span>`;
 
-            hiddenBoxList.insertAdjacentElement("afterbegin", li);
-          });
+              hiddenBoxList.insertAdjacentElement("afterbegin", li);
+            });
+          }
         }
+      } catch (err) {
+        swal(err.message, {
+          buttons: false,
+          timer: 3000,
+          className: "error-box",
+        });
       }
     }
   }
@@ -243,34 +259,42 @@ async function addPartClick(e) {
   const serviceId = e.target.id;
   const partInput = hiddenBoxList.querySelector("li input");
   if (partInput.value) {
-    const res = await request(`${api}/service/${serviceId}`, {
-      method: "PATCH",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-      body: JSON.stringify({
-        part: partInput.value,
-      }),
-    });
-    if (res.status === "success") {
-      const li = document.createElement("li");
-      li.style.visibility = "hidden";
-      li.classList.add("service-part");
-      li.classList.add("slider");
-      li.innerHTML = `<ion-icon name="build-outline"></ion-icon>mechanical part:
-            <span class="strong">${partInput.value}</span>`;
+    try {
+      const res = await request(`${api}/service/${serviceId}`, {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({
+          part: partInput.value,
+        }),
+      });
+      if (res.status === "success") {
+        partInput.value = "";
+        const li = document.createElement("li");
+        li.style.visibility = "hidden";
+        li.classList.add("service-part");
+        li.classList.add("slider");
+        li.innerHTML = `<ion-icon name="build-outline"></ion-icon>mechanical part:
+      <span class="strong">${partInput.value}</span>`;
 
-      hiddenBoxList.insertAdjacentElement("afterbegin", li);
+        hiddenBoxList.insertAdjacentElement("afterbegin", li);
 
-      setTimeout(() => {
-        li.classList.remove("slider");
-      }, 100);
-      setTimeout(() => {
-        li.style.visibility = "visible";
-      }, 200);
+        setTimeout(() => {
+          li.classList.remove("slider");
+        }, 100);
+        setTimeout(() => {
+          li.style.visibility = "visible";
+        }, 200);
+      }
+    } catch (err) {
+      swal(err.message, {
+        buttons: false,
+        timer: 3000,
+        className: "error-box",
+      });
     }
-    partInput.value = "";
   }
 }
 

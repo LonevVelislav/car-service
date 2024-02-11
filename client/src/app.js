@@ -122,7 +122,11 @@ function renderFormMenu(ctx, next) {
           }
         })
         .catch((err) => {
-          alert(err.message);
+          swal(err.message, {
+            buttons: false,
+            timer: 3000,
+            className: "error-box",
+          });
         });
     }
   }

@@ -3,31 +3,30 @@ import { api } from "./api.js";
 
 export function renderLogin(ctx, next) {
   const templete = html`<section></section>
-  <main>
-    <form @submit=${onLogin} class="add-service-form">
-      <div class="form-text">
+    <main>
+      <form @submit=${onLogin} class="add-service-form">
         <span class="service-heading sub-heading"
           ><ion-icon name="car-outline"></ion-icon>select</span
         >
-       <div class="service-form-element">
+        <div class="service-form-element">
           <label for="number">car number</label>
-          <input type="text" name="number" id="number">
-       </div>
-       <div class="service-form-element">
+          <input type="text" name="number" id="number" />
+        </div>
+        <div class="service-form-element">
           <label for="pin">pin code</label>
-          <input type="password" name="pin" id="pin">
-       </div>
-      <div class="service-form-element">
-        <input type="submit" value="Select" />
-      </div>
-      <a href="/register" class="select-link fixed--bot-right ">Register Car <ion-icon name="arrow-forward-outline"></ion-icon></a>
-    </form>
-   
-  </main>
-  <aside>
-  <p class="aside-text">
-  </p>
-  </aside>`;
+          <input type="password" name="pin" id="pin" />
+        </div>
+        <div class="service-form-element">
+          <input type="submit" value="Select" />
+        </div>
+        <a href="/register" class="select-link"
+          >Register Car <ion-icon name="arrow-forward-outline"></ion-icon
+        ></a>
+      </form>
+    </main>
+    <aside>
+      <p class="aside-text"></p>
+    </aside>`;
 
   async function onLogin(e) {
     e.preventDefault();
@@ -64,7 +63,11 @@ export function renderLogin(ctx, next) {
           }
         })
         .catch((err) => {
-          window.alert(err.message);
+          swal(err.message, {
+            buttons: false,
+            timer: 3000,
+            className: "error-box",
+          });
         });
     }
   }
