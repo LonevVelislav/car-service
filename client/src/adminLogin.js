@@ -2,8 +2,7 @@ import { html } from "../node_modules/lit-html/lit-html.js";
 import { api } from "./api.js";
 
 export function renderAdminLogin(ctx, next) {
-  const templete = html`<section></section>
-    <main>
+  const templete = html` <main>
       <form action="#" class="add-service-form">
         <div class="service-form-element">
           <label for="username">username</label>

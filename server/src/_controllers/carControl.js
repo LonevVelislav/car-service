@@ -89,9 +89,11 @@ router.get("/", protect, async (req, res) => {
     }
 });
 
-router.get("/:id", protect, async (req, res) => {
+router.get("/:id", carProtect, async (req, res) => {
     try {
-        const car = await Car.findById(req.params.id);
+        const features = new CarFeatures(Car.findById(req.params.id), req.query).filterFields();
+
+        const car = await features.query;
         res.status(200).json({
             status: "success",
             data: {

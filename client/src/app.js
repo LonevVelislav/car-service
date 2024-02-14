@@ -9,11 +9,13 @@ import { renderAdminLogin } from "./adminLogin.js";
 import { renderCar } from "./car.js";
 
 const menu = document.querySelector(".menu");
+const section = document.querySelector("section");
 const body = document.querySelector("body");
 
 page("index.html", "/");
 page(renderTempletes);
 page(renderFormMenu);
+page(renderSectionMenu);
 
 page("/", renderSelect);
 page("/login", renderLogin);
@@ -25,6 +27,7 @@ page.start();
 
 function renderTempletes(ctx, next) {
   ctx.renderMenu = (templete) => render(templete, menu);
+  ctx.renderSection = (templete) => render(templete, section);
   ctx.renderBody = (templete) => render(templete, body);
   next();
 }
@@ -32,17 +35,13 @@ function renderTempletes(ctx, next) {
 function renderFormMenu(ctx, next) {
   const accessToken = sessionStorage.getItem("accessToken");
 
-  const id = sessionStorage.getItem("_id");
-  const number = sessionStorage.getItem("number");
-  const engine = sessionStorage.getItem("engine");
-  const km = sessionStorage.getItem("km");
-  const model = sessionStorage.getItem("model");
+  const car = JSON.parse(sessionStorage.getItem("car"));
 
   const templete = html`${accessToken
     ? html`<form @submit=${onUpdate} class="menu-form">
         <a href="/car" class="menu-form-element">
           <ion-icon name="car-outline"></ion-icon>
-          <span>${number}</span>
+          <span>${car.number}</span>
         </a>
         <div class="menu-form-element">
           <label for="km">km</label>
@@ -50,7 +49,7 @@ function renderFormMenu(ctx, next) {
             type="text"
             name="km"
             id="km"
-            value="${km === "undefined" ? "" : km}"
+            value="${car.km ? car.km : ""}"
           />
         </div>
         <div class="menu-form-element">
@@ -59,7 +58,7 @@ function renderFormMenu(ctx, next) {
             type="text"
             name="model"
             id="model"
-            value="${model === "undefined" ? "" : model}"
+            value="${car.model ? car.model : ""}"
           />
         </div>
 
@@ -69,7 +68,7 @@ function renderFormMenu(ctx, next) {
             type="text"
             name="engine"
             id="engine"
-            value="${engine === "undefined" ? "" : engine}"
+            value="${car.engine ? car.engine : ""}"
           />
         </div>
         <a href="/login" class="exit">
@@ -98,7 +97,7 @@ function renderFormMenu(ctx, next) {
     const model = formDate.get("model");
 
     if (km || engine || model) {
-      await fetch(api + `/cars/${id}`, {
+      await fetch(api + `/cars/${car._id}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -113,9 +112,7 @@ function renderFormMenu(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
-            sessionStorage.setItem("model", res.data.updatedCar.model);
-            sessionStorage.setItem("km", res.data.updatedCar.km);
-            sessionStorage.setItem("engine", res.data.updatedCar.engine);
+            sessionStorage.setItem("car", JSON.stringify(res.data.updatedCar));
             ctx.page.redirect("/car");
           } else {
             throw new Error(res.message);
@@ -134,4 +131,58 @@ function renderFormMenu(ctx, next) {
   ctx.renderMenu(templete);
 
   next();
+}
+
+function renderSectionMenu(ctx, next) {
+  const accessToken = sessionStorage.getItem("accessToken");
+
+  const car = JSON.parse(sessionStorage.getItem("car"));
+
+  const templete = html`${accessToken
+    ? html`<span class="sub-heading">Notifications</span>
+        ${Object.keys(car.intervals).map(
+          (el) =>
+            html`<a @click=${onNotificationClick} class="notification-box">
+      <img
+        class="notification-icon unclick"
+        src="./img/icons/${el}-icon.png"
+        alt="${el}-icon"
+      />
+      <ion-icon class="unclick" name="arrow-down-outline"></ion-icon>
+      <div class="hidden-box">
+        <div class="interval-input">
+          <input
+            type="text"
+            placeholder="set interval"
+            value=${car.intervals[el] ? car.intervals[el] : ""}
+          /><button>
+            <ion-icon name="add-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+      </a>
+    </div>`
+        )} `
+    : html``}`;
+
+  ctx.renderSection(templete);
+
+  next();
+
+  function onNotificationClick(e) {
+    if (e.target.classList.contains("notification-box")) {
+      if (e.target.classList.contains("open")) {
+        e.target.classList.remove("open");
+      } else {
+        closeAllNotifications();
+        e.target.classList.add("open");
+      }
+    }
+  }
+
+  function closeAllNotifications() {
+    document
+      .querySelectorAll(".notification-box")
+      .forEach((el) => el.classList.remove("open"));
+  }
 }

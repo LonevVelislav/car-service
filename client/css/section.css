@@ -1,0 +1,43 @@
+.notification-box {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border-radius: 3px;
+  padding: 0.4rem;
+  background-color: #ffe66c;
+  cursor: pointer;
+}
+.notification-box:hover,
+.notification-box:active {
+  background-color: #ffd60a;
+}
+.notification-icon {
+  width: 3rem;
+}
+.notification-box ion-icon {
+  font-size: 2.6rem;
+}
+.warning-icon {
+  color: #ffd60a;
+  font-size: 2.5rem;
+}
+.interval-input input {
+  display: flex;
+  flex-direction: column;
+}
+
+.interval-input input {
+  font-size: 2rem;
+  width: 100%;
+}
+.interval-input button {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.interval-input button:hover,
+.interval-input button:active {
+  background-color: #023e8a;
+  color: #fff;
+}

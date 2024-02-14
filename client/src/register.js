@@ -2,8 +2,7 @@ import { html } from "../node_modules/lit-html/lit-html.js";
 import { api } from "./api.js";
 
 export function renderRegister(ctx, next) {
-  const templete = html`<section></section>
-    <main>
+  const templete = html`<main>
       <form @submit=${onRegister} class="add-service-form">
         <span class="service-heading sub-heading"
           ><ion-icon name="newspaper-outline"></ion-icon>register</span
@@ -52,10 +51,7 @@ export function renderRegister(ctx, next) {
 
             sessionStorage.setItem("accessToken", res.token);
             sessionStorage.setItem("_id", res.data.user._id);
-            sessionStorage.setItem("number", res.data.user.number);
-            sessionStorage.setItem("model", res.data.user.model);
-            sessionStorage.setItem("km", res.data.user.km);
-            sessionStorage.setItem("engine", res.data.user.engine);
+            sessionStorage.setItem("car", JSON.stringify(res.data.user));
 
             ctx.page.redirect(`/car`);
           } else {

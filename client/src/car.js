@@ -14,10 +14,9 @@ export async function renderCar(ctx, next) {
       },
     }
   );
-
   const services = res.data.services;
 
-  const templete = html`<section></section>
+  const templete = html`
     <main>
       <a @click=${onAddServiceClick} class="add-service-btn">
       <ion-icon name="construct-outline"></ion-icon>
@@ -31,16 +30,16 @@ export async function renderCar(ctx, next) {
               <label for="type">type</label>
               <select id="type" name="type">
                 <option>repairs</option>
-                <option>oil</option>
+                <option value="oil">oil change</option>
                 <option>battery</option>
-                <option>brakes</option>
+                <option value="brakes">brakes/pads</option>
                 <option>cambelts</option>
                 <option>clutches</option>
                 <option>engine</option>
-                <option>tyres</option>
+                <option value="tyres">tyres/alignment</option>
                 <option>chassie</option>
                 <option>diagnostics</option>
-                <option>cooling</option>
+                <option value="cooling">cooling system</option>
                 <option>exhaust</option>
                 <option>gearbox</option>
                 <option>steering</option>

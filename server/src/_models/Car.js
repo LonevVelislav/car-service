@@ -48,6 +48,36 @@ const carSchema = new mongoose.Schema(
         km: {
             type: Number,
         },
+        intervals: {
+            oil: {
+                type: Number,
+                default: null,
+            },
+            brakes: {
+                type: Number,
+                default: null,
+            },
+            cambelts: {
+                type: Number,
+                default: null,
+            },
+            MOT: {
+                type: Date,
+                default: null,
+            },
+            roadtax: {
+                type: Date,
+                default: null,
+            },
+            tax: {
+                type: Date,
+                default: null,
+            },
+            insurance: {
+                type: Date,
+                default: null,
+            },
+        },
     },
     {
         toJSON: { virtuals: true },
@@ -55,8 +85,10 @@ const carSchema = new mongoose.Schema(
     }
 );
 carSchema.pre("save", async function (next) {
-    this.number = this.number.toUpperCase();
-    this.pin = await bcrypt.hash(this.pin, 10);
+    if (this.isNew) {
+        this.number = this.number.toUpperCase();
+        this.pin = await bcrypt.hash(this.pin, 10);
+    }
     next();
 });
 
