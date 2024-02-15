@@ -38,7 +38,7 @@ function renderFormMenu(ctx, next) {
   const car = JSON.parse(sessionStorage.getItem("car"));
 
   const templete = html`${accessToken
-    ? html`<form @submit=${onUpdate} class="menu-form">
+    ? html`<form @submit=${onUpdate}  class="menu-form">
         <a href="/car" class="menu-form-element">
           <ion-icon name="car-outline"></ion-icon>
           <span>${car.number}</span>
@@ -90,11 +90,11 @@ function renderFormMenu(ctx, next) {
 
   async function onUpdate(e) {
     e.preventDefault();
-    const formDate = new FormData(e.target);
+    const formData = new FormData(e.target);
 
-    const km = formDate.get("km");
-    const engine = formDate.get("engine");
-    const model = formDate.get("model");
+    const km = formData.get("km");
+    const engine = formData.get("engine");
+    const model = formData.get("model");
 
     if (km || engine || model) {
       await fetch(api + `/cars/${car._id}`, {
@@ -141,34 +141,97 @@ function renderSectionMenu(ctx, next) {
 
   const templete = html`${accessToken
     ? html`<span class="sub-heading">Notifications</span>
-        ${Object.keys(car.intervals).map(
-          (el) =>
-            html`<a @click=${onNotificationClick} class="notification-box">
-      <img
-        class="notification-icon unclick"
-        src="./img/icons/${el}-icon.png"
-        alt="${el}-icon"
-      />
-      <ion-icon class="unclick" name="arrow-down-outline"></ion-icon>
-      <div class="hidden-box">
-        <div class="interval-input">
-          <input
-            type="text"
-            placeholder="set interval"
-            value=${car.intervals[el] ? car.intervals[el] : ""}
-          /><button>
-            <ion-icon name="add-outline"></ion-icon>
-          </button>
-        </div>
-      </div>
-      </a>
-    </div>`
-        )} `
+        ${Object.keys(car.intervals).map((el) => {
+          if (el !== "_id" && el !== "__v") {
+            return html`<a @click=${onNotificationClick} class="notification-box">
+            <img
+            class="notification-icon unclick"
+            src="./img/icons/${el}-icon.png"
+            alt="${el}-icon"
+            />
+            <ion-icon class="unclick" name="arrow-down-outline"></ion-icon>
+            <div class="hidden-box">
+            <form @submit=${onIntervalFormSubmit} id=${
+              car.intervals._id
+            } class="interval-input">
+            <input
+                  type=${
+                    el === "MOT" ||
+                    el === "roadtax" ||
+                    el === "insurance" ||
+                    el === "tax"
+                      ? "date"
+                      : "number"
+                  }
+                  placeholder="set interval"
+                  name=${el}
+                  value=${
+                    car.intervals[el]
+                      ? el === "MOT" ||
+                        el === "roadtax" ||
+                        el === "insurance" ||
+                        el === "tax"
+                        ? new Date(car.intervals[el])
+                            .toISOString()
+                            .split("T")[0]
+                        : car.intervals[el]
+                      : ""
+                  }
+                  /><button>
+                  <ion-icon name="add-outline"></ion-icon>
+                  </button>
+              </form>
+            </div>
+            </a>
+            </div>`;
+          }
+        })} `
     : html``}`;
 
   ctx.renderSection(templete);
 
   next();
+
+  async function onIntervalFormSubmit(e) {
+    e.preventDefault();
+    const intervalId = e.target.id;
+    const value = e.target.querySelector("input").value;
+    const type = e.target.querySelector("input").type;
+    const name = e.target.querySelector("input").name;
+    const obj = {};
+    if (value) {
+      if (type === "number") {
+        obj[name] = Number(value);
+      }
+      if (type === "date") {
+        obj[name] = new Date(value);
+      }
+      await fetch(api + `/intervals/${intervalId}`, {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(obj),
+      })
+        .then((data) => data.json())
+        .then((res) => {
+          if (res.status === "success") {
+            sessionStorage.setItem("car", JSON.stringify(res.data.car));
+            ctx.page.redirect("/car");
+          } else {
+            throw new Error(res.message);
+          }
+        })
+        .catch((err) => {
+          swal(err.message, {
+            buttons: false,
+            timer: 3000,
+            className: "error-box",
+          });
+        });
+    }
+  }
 
   function onNotificationClick(e) {
     if (e.target.classList.contains("notification-box")) {

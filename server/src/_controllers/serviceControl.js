@@ -105,7 +105,7 @@ router.post("/:id", carProtect, async (req, res) => {
     try {
         if (req.body.km) {
             if (req.body.km > req.car.km) {
-                throw new Error("Car mileage is higher then given input!");
+                throw new Error("Car mileage is lower then given input!");
             }
         }
         const newService = await Service.create({

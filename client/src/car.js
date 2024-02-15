@@ -1,6 +1,7 @@
 import { html } from "../node_modules/lit-html/lit-html.js";
 import { request } from "./request.js";
 import { api } from "./api.js";
+import { formatDate } from "./formatDate.js";
 
 export async function renderCar(ctx, next) {
   const carId = sessionStorage.getItem("_id");
@@ -332,19 +333,6 @@ async function addPartClick(e) {
       });
     }
   }
-}
-
-function formatDate(date) {
-  const input = new Date(date);
-  const year = input.getFullYear();
-  const month = input.getMonth() + 1;
-  const day = input.getDate();
-
-  const formatted = `${day.toString().padStart(2, "0")}-${month
-    .toString()
-    .padStart(2, "0")}-${year}`;
-
-  return formatted;
 }
 
 function closeServiceForm() {

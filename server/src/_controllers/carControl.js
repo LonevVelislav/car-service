@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Car = require("../_models/Car");
+const Intervals = require("../_models/Intervals");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
 const { protect, carProtect } = require("../_middlewares/authMiddleware");
@@ -91,7 +92,7 @@ router.get("/:id", carProtect, async (req, res) => {
     try {
         const features = new CarFeatures(Car.findById(req.params.id), req.query).filterFields();
 
-        const car = await features.query;
+        const car = await features.query.populate("intervals");
         res.status(200).json({
             status: "success",
             data: {
@@ -108,7 +109,8 @@ router.get("/:id", carProtect, async (req, res) => {
 
 router.post("/register", async (req, res) => {
     try {
-        const newCar = await Car.create(req.body);
+        const intervals = await Intervals.create({});
+        const newCar = await Car.create({ ...req.body, intervals });
 
         createAndSendToken(newCar, 200, res);
     } catch (err) {
@@ -125,7 +127,7 @@ router.post("/login", async (req, res) => {
         if (!number || !pin) {
             throw new Error("Provide registration number and pin!");
         }
-        const car = await Car.findOne({ number }).select("+pin");
+        const car = await Car.findOne({ number }).select("+pin").populate("intervals");
         if (!car || !(await car.correctPin(pin, car.pin))) {
             throw new Error("Incorrect pin!");
         }
@@ -150,7 +152,7 @@ router.patch("/:id", carProtect, async (req, res) => {
                 new: true,
                 runValidators: true,
             }
-        );
+        ).populate("intervals");
         res.status(201).json({
             status: "success",
             data: {
