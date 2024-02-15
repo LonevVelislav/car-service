@@ -28,8 +28,6 @@ class CarFeatures {
     sort() {
         if (this.queryString.sort) {
             this.query = this.query.sort(this.queryString.sort);
-        } else {
-            this.query = this.query.sort("-createdAt");
         }
         return this;
     }

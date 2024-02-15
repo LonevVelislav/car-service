@@ -24,6 +24,7 @@
   display: flex;
   gap: 1.8rem;
   justify-self: center;
+  align-items: center;
   font-size: 2rem;
   pointer-events: none;
 }

@@ -112,6 +112,7 @@ function renderFormMenu(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
+            document.getElementById("km").value = res.data.updatedCar.km;
             sessionStorage.setItem("car", JSON.stringify(res.data.updatedCar));
             ctx.page.redirect("/car");
           } else {

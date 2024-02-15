@@ -41,3 +41,36 @@
   background-color: #023e8a;
   color: #fff;
 }
+.notification {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.1);
+  padding: 1.2rem;
+  align-items: center;
+  background-color: #ffe66c;
+}
+
+.warning-icon {
+  color: #c1121f;
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+.notification-delete {
+  display: flex;
+  align-items: center;
+  background-color: #c1121f;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.notification-delete ion-icon {
+  font-size: 2.5rem;
+  color: #fff;
+}
+.notification-delete:hover,
+.notification-delete:active {
+  background-color: #9a0e19;
+}

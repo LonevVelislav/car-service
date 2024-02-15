@@ -4,9 +4,10 @@ import { api } from "./api.js";
 
 export async function renderCar(ctx, next) {
   const carId = sessionStorage.getItem("_id");
+  const car = JSON.parse(sessionStorage.getItem("car"));
 
   const res = await request(
-    `${api}/service/car/${carId}?fields=-parts,-info,-car,-__v,&page=1&limit=10`,
+    `${api}/service/car/${carId}?sort=-km&fields=-parts,-info,-car,-__v,&page=1&limit=10`,
     {
       method: "GET",
       headers: {
@@ -14,7 +15,7 @@ export async function renderCar(ctx, next) {
       },
     }
   );
-  const services = res.data.services;
+  const services = res.data.services.sort((a, b) => b.createdAt - a.createdAt);
 
   const templete = html`
     <main>
@@ -74,6 +75,42 @@ export async function renderCar(ctx, next) {
           </form>
         </div>
       </a>
+ 
+</div>
+        ${Object.keys(car.intervals).map((el) => {
+          const lastService = getLastService(el, services);
+          if (lastService) {
+            if (car.km - lastService.km >= car.intervals[el]) {
+              return html`<div class="notification">
+                <ion-icon
+                  class="warning-icon"
+                  name="warning-outline"
+                ></ion-icon>
+                <div class="service-text">
+                  <img
+                    class="service-icon"
+                    src="./img/icons/${el}-icon.png"
+                    alt="${el}-icon"
+                  />
+                  <p>
+                    last service:
+                    <span class="strong"
+                      >${formatDate(lastService.createdAt)}</span
+                    >
+                  </p>
+                </div>
+                <button
+                  @click=${onDeleteNotification}
+                  class="notification-delete"
+                >
+                  <ion-icon class="unclick" name="close-outline"></ion-icon>
+                </button>
+              </div>`;
+            }
+          }
+        })}
+  
+    
       ${services ? services.map((service) => serviceTemplete(service)) : ""}
     </main>
     <aside>
@@ -82,26 +119,25 @@ export async function renderCar(ctx, next) {
 
   ctx.renderBody(templete);
 
-  document.addEventListener("click", async (e) => {
-    try {
-      if (
-        e.target.nodeName === "BUTTON" &&
-        e.target.classList.contains("service-delete")
-      ) {
-        closeAllServices();
-        const serviceId = e.target.id;
-        const res = await fetch(`${api}/service/${serviceId}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-          },
-        });
+  document.querySelectorAll(".service-delete").forEach((btn) => {
+    btn.addEventListener("click", onDeleteServiceButton);
+  });
 
-        if (res.ok) {
-          ctx.page.redirect("/car");
-        } else {
-          throw new Error("Unauthorized!");
-        }
+  async function onDeleteServiceButton(e) {
+    try {
+      closeAllServices();
+      e.target.removeEventListener("click", onDeleteServiceButton);
+      const serviceId = e.target.id;
+      const res = await fetch(`${api}/service/${serviceId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        },
+      });
+      if (res.ok) {
+        ctx.page.redirect("/car");
+      } else {
+        throw new Error("Unauthorized!");
       }
     } catch (err) {
       swal(err.message, {
@@ -110,7 +146,7 @@ export async function renderCar(ctx, next) {
         className: "error-box",
       });
     }
-  });
+  }
 
   async function onCreate(e) {
     e.preventDefault();
@@ -258,6 +294,7 @@ async function addPartClick(e) {
   const serviceId = e.target.id;
   const partInput = hiddenBoxList.querySelector("li input");
   if (partInput.value) {
+    console.log(partInput.value);
     try {
       const res = await request(`${api}/service/${serviceId}`, {
         method: "PATCH",
@@ -270,15 +307,15 @@ async function addPartClick(e) {
         }),
       });
       if (res.status === "success") {
-        partInput.value = "";
         const li = document.createElement("li");
         li.style.visibility = "hidden";
         li.classList.add("service-part");
         li.classList.add("slider");
         li.innerHTML = `<ion-icon name="build-outline"></ion-icon>mechanical part:
-      <span class="strong">${partInput.value}</span>`;
+        <span class="strong">${partInput.value}</span>`;
 
         hiddenBoxList.insertAdjacentElement("afterbegin", li);
+        partInput.value = "";
 
         setTimeout(() => {
           li.classList.remove("slider");
@@ -318,4 +355,21 @@ function closeAllServices() {
   document
     .querySelectorAll(".service")
     .forEach((el) => el.classList.remove("open"));
+}
+
+function getLastService(type, services) {
+  if (services.some((el) => el.type === type)) {
+    const lastService = services
+      .filter((service) => service.type === type)
+      .sort((a, b) => b.km - a.km)[0];
+
+    return lastService;
+  } else {
+    return false;
+  }
+}
+
+function onDeleteNotification(e) {
+  const notificationDiv = e.target.parentElement;
+  document.querySelector("main").removeChild(notificationDiv);
 }

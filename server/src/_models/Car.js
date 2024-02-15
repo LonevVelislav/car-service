@@ -61,6 +61,30 @@ const carSchema = new mongoose.Schema(
                 type: Number,
                 default: null,
             },
+            suspension: {
+                type: Number,
+                default: null,
+            },
+            engine: {
+                type: Number,
+                default: null,
+            },
+            battery: {
+                type: Number,
+                default: null,
+            },
+            tyres: {
+                type: Number,
+                default: null,
+            },
+            clutches: {
+                type: Number,
+                default: null,
+            },
+            gearbox: {
+                type: Number,
+                default: null,
+            },
             MOT: {
                 type: Date,
                 default: null,
@@ -92,8 +116,17 @@ carSchema.pre("save", async function (next) {
     next();
 });
 
-carSchema.pre(/^find/, function (next) {
+carSchema.pre(/^find/, async function (next) {
     if (this.op === "findOneAndUpdate") {
+        const carId = this._conditions._id;
+
+        const carServices = await mongoose.model("Service").find({ car: carId }).sort("-km");
+        if (carServices.length > 0) {
+            if (this._update.km && this._update.km < carServices[0].km) {
+                this._update.km = await mongoose.model("Car").find({ _id: carId }).km;
+            }
+        }
+
         if (this._update.km && this._update.km < 0) {
             this._update.km = Math.abs(this._update.km);
         }
