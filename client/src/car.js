@@ -18,14 +18,6 @@ export async function renderCar(ctx, next) {
   );
   const services = res.data.services;
 
-  const dateServices = services.filter(
-    (service) =>
-      service.type === "MOT" ||
-      service.type === "tax" ||
-      service.type === "roadtax" ||
-      service.type === "insurance"
-  );
-
   const templete = html`
     <main>
       <a @click=${onAddServiceClick} class="add-service-btn">
@@ -86,10 +78,28 @@ export async function renderCar(ctx, next) {
       </a>
  
 </div>
+
         ${Object.keys(car.intervals).map((el) => {
-          const lastService = getLastService(el, services);
+          let lastService;
+          let condition;
+          if (
+            el === "MOT" ||
+            el === "tax" ||
+            el === "roadtax" ||
+            el === "insurance"
+          ) {
+            lastService = getLastDateService(el, services);
+            condition = yearDifferenceCheck(
+              new Date(lastService.createdAt),
+              car.intervals[el]
+            );
+          } else {
+            lastService = getLastService(el, services);
+            condition = car.km - lastService.km >= car.intervals[el];
+          }
+
           if (lastService && car.intervals[el]) {
-            if (car.km - lastService.km >= car.intervals[el]) {
+            if (condition) {
               return html`<div class="notification">
                 <ion-icon
                   class="warning-icon"
@@ -119,41 +129,10 @@ export async function renderCar(ctx, next) {
           }
         })}
 
-       ${dateServices.map((service) => {
-         if (getLastDateService(service.type, dateServices)) {
-           const currentService = getLastDateService(
-             service.type,
-             dateServices
-           );
-           if (yearDifferenceCheck(new Date(currentService.createdAt))) {
-             return html`<div class="notification">
-               <ion-icon class="warning-icon" name="warning-outline"></ion-icon>
-               <div class="service-text">
-                 <img
-                   class="service-icon"
-                   src="./img/icons/${currentService.type}-icon.png"
-                   alt="${currentService.type}-icon"
-                 />
-                 <p>
-                   last service:
-                   <span class="strong"
-                     >${formatDate(currentService.createdAt)}</span
-                   >
-                 </p>
-               </div>
-               <button
-                 @click=${onDeleteNotification}
-                 class="notification-delete"
-               >
-                 <ion-icon class="unclick" name="close-outline"></ion-icon>
-               </button>
-             </div>`;
-           }
-         }
-       })} 
-  
-    
-      ${services ? services.map((service) => serviceTemplete(service)) : ""}
+      
+        
+        
+        ${services ? services.map((service) => serviceTemplete(service)) : ""}
     </main>
     <aside>
       <p class="aside-text"></p>

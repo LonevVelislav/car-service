@@ -158,7 +158,14 @@ function renderSectionMenu(ctx, next) {
             } class="interval-input">
             <input
                   type=number
-                  placeholder="${el} interval"
+                  placeholder=${
+                    el === "MOT" ||
+                    el === "tax" ||
+                    el === "roadtax" ||
+                    el === "insurance"
+                      ? `${el} months`
+                      : `${el} intervals`
+                  }
                   name=${el}
                   value=${car.intervals[el]}
                   /><button>

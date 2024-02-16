@@ -11,14 +11,13 @@ export function formatDate(date) {
   return formatted;
 }
 
-export function yearDifferenceCheck(date) {
-  const currentYear = new Date();
-  const yearDiff = currentYear.getFullYear() - date.getFullYear();
+export function yearDifferenceCheck(date, months) {
+  const currentDate = new Date();
+  // Calculate the difference in months
+  const monthDiff =
+    (currentDate.getFullYear() - date.getFullYear()) * 12 +
+    currentDate.getMonth() -
+    date.getMonth();
 
-  return (
-    yearDiff > 1 ||
-    (yearDiff === 1 &&
-      currentYear.getMonth() >= date.getMonth() &&
-      currentYear.getDate() >= date.getDate())
-  );
+  return monthDiff >= months;
 }
