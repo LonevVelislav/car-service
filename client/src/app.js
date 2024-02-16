@@ -143,7 +143,9 @@ function renderSectionMenu(ctx, next) {
     ? html`<span class="sub-heading">Notifications</span>
         ${Object.keys(car.intervals).map((el) => {
           if (el !== "_id" && el !== "__v") {
-            return html`<a @click=${onNotificationClick} class="notification-box">
+            return html`<a @click=${onNotificationClick} class=${
+              car.intervals[el] ? "notification-box filled" : "notification-box"
+            }>
             <img
             class="notification-icon unclick"
             src="./img/icons/${el}-icon.png"
@@ -155,28 +157,10 @@ function renderSectionMenu(ctx, next) {
               car.intervals._id
             } class="interval-input">
             <input
-                  type=${
-                    el === "MOT" ||
-                    el === "roadtax" ||
-                    el === "insurance" ||
-                    el === "tax"
-                      ? "date"
-                      : "number"
-                  }
-                  placeholder="set interval"
+                  type=number
+                  placeholder="${el} interval"
                   name=${el}
-                  value=${
-                    car.intervals[el]
-                      ? el === "MOT" ||
-                        el === "roadtax" ||
-                        el === "insurance" ||
-                        el === "tax"
-                        ? new Date(car.intervals[el])
-                            .toISOString()
-                            .split("T")[0]
-                        : car.intervals[el]
-                      : ""
-                  }
+                  value=${car.intervals[el]}
                   /><button>
                   <ion-icon name="add-outline"></ion-icon>
                   </button>
@@ -196,41 +180,35 @@ function renderSectionMenu(ctx, next) {
     e.preventDefault();
     const intervalId = e.target.id;
     const value = e.target.querySelector("input").value;
-    const type = e.target.querySelector("input").type;
     const name = e.target.querySelector("input").name;
     const obj = {};
-    if (value) {
-      if (type === "number") {
-        obj[name] = Number(value);
-      }
-      if (type === "date") {
-        obj[name] = new Date(value);
-      }
-      await fetch(api + `/intervals/${intervalId}`, {
-        method: "PATCH",
-        headers: {
-          "content-type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(obj),
+
+    obj[name] = Number(value);
+
+    await fetch(api + `/intervals/${intervalId}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(obj),
+    })
+      .then((data) => data.json())
+      .then((res) => {
+        if (res.status === "success") {
+          sessionStorage.setItem("car", JSON.stringify(res.data.car));
+          ctx.page.redirect("/car");
+        } else {
+          throw new Error(res.message);
+        }
       })
-        .then((data) => data.json())
-        .then((res) => {
-          if (res.status === "success") {
-            sessionStorage.setItem("car", JSON.stringify(res.data.car));
-            ctx.page.redirect("/car");
-          } else {
-            throw new Error(res.message);
-          }
-        })
-        .catch((err) => {
-          swal(err.message, {
-            buttons: false,
-            timer: 3000,
-            className: "error-box",
-          });
+      .catch((err) => {
+        swal(err.message, {
+          buttons: false,
+          timer: 3000,
+          className: "error-box",
         });
-    }
+      });
   }
 
   function onNotificationClick(e) {

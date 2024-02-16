@@ -113,7 +113,6 @@ router.post("/:id", carProtect, async (req, res) => {
             km: req.body.km ? req.body.km : req.car.km,
             car: req.params.id,
         });
-        console.log(newService);
         res.status(200).json({
             status: "success",
             data: {

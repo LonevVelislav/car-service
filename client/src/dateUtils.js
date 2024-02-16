@@ -10,3 +10,15 @@ export function formatDate(date) {
 
   return formatted;
 }
+
+export function yearDifferenceCheck(date) {
+  const currentYear = new Date();
+  const yearDiff = currentYear.getFullYear() - date.getFullYear();
+
+  return (
+    yearDiff > 1 ||
+    (yearDiff === 1 &&
+      currentYear.getMonth() >= date.getMonth() &&
+      currentYear.getDate() >= date.getDate())
+  );
+}

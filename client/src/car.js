@@ -1,7 +1,7 @@
 import { html } from "../node_modules/lit-html/lit-html.js";
 import { request } from "./request.js";
 import { api } from "./api.js";
-import { formatDate } from "./formatDate.js";
+import { formatDate, yearDifferenceCheck } from "./dateUtils.js";
 
 export async function renderCar(ctx, next) {
   const carId = sessionStorage.getItem("_id");
@@ -16,7 +16,15 @@ export async function renderCar(ctx, next) {
       },
     }
   );
-  const services = res.data.services.sort((a, b) => b.createdAt - a.createdAt);
+  const services = res.data.services;
+
+  const dateServices = services.filter(
+    (service) =>
+      service.type === "MOT" ||
+      service.type === "tax" ||
+      service.type === "roadtax" ||
+      service.type === "insurance"
+  );
 
   const templete = html`
     <main>
@@ -80,7 +88,7 @@ export async function renderCar(ctx, next) {
 </div>
         ${Object.keys(car.intervals).map((el) => {
           const lastService = getLastService(el, services);
-          if (lastService) {
+          if (lastService && car.intervals[el]) {
             if (car.km - lastService.km >= car.intervals[el]) {
               return html`<div class="notification">
                 <ion-icon
@@ -110,6 +118,39 @@ export async function renderCar(ctx, next) {
             }
           }
         })}
+
+       ${dateServices.map((service) => {
+         if (getLastDateService(service.type, dateServices)) {
+           const currentService = getLastDateService(
+             service.type,
+             dateServices
+           );
+           if (yearDifferenceCheck(new Date(currentService.createdAt))) {
+             return html`<div class="notification">
+               <ion-icon class="warning-icon" name="warning-outline"></ion-icon>
+               <div class="service-text">
+                 <img
+                   class="service-icon"
+                   src="./img/icons/${currentService.type}-icon.png"
+                   alt="${currentService.type}-icon"
+                 />
+                 <p>
+                   last service:
+                   <span class="strong"
+                     >${formatDate(currentService.createdAt)}</span
+                   >
+                 </p>
+               </div>
+               <button
+                 @click=${onDeleteNotification}
+                 class="notification-delete"
+               >
+                 <ion-icon class="unclick" name="close-outline"></ion-icon>
+               </button>
+             </div>`;
+           }
+         }
+       })} 
   
     
       ${services ? services.map((service) => serviceTemplete(service)) : ""}
@@ -295,7 +336,6 @@ async function addPartClick(e) {
   const serviceId = e.target.id;
   const partInput = hiddenBoxList.querySelector("li input");
   if (partInput.value) {
-    console.log(partInput.value);
     try {
       const res = await request(`${api}/service/${serviceId}`, {
         method: "PATCH",
@@ -352,6 +392,18 @@ function getLastService(type, services) {
       .sort((a, b) => b.km - a.km)[0];
 
     return lastService;
+  } else {
+    return false;
+  }
+}
+
+function getLastDateService(type, services) {
+  if (services.some((el) => el.type === type)) {
+    const lastDateService = services
+      .filter((service) => service.type === type)
+      .sort((a, b) => b.createdAt > a.createdAt)[0];
+
+    return lastDateService;
   } else {
     return false;
   }

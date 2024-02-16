@@ -37,22 +37,6 @@ const intervalsSchema = new mongoose.Schema({
         type: Number,
         default: null,
     },
-    MOT: {
-        type: Date,
-        default: null,
-    },
-    roadtax: {
-        type: Date,
-        default: null,
-    },
-    tax: {
-        type: Date,
-        default: null,
-    },
-    insurance: {
-        type: Date,
-        default: null,
-    },
 });
 
 const Intervals = mongoose.model("Intervals", intervalsSchema);

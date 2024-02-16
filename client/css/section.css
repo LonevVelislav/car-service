@@ -4,7 +4,7 @@
   grid-template-columns: 1fr auto;
   border-radius: 3px;
   padding: 0.4rem;
-  background-color: #ffe66c;
+  background-color: #b3a14c;
   cursor: pointer;
 }
 .notification-box:hover,
@@ -76,5 +76,5 @@
 }
 
 .filled {
-  background-color: #9a0e19;
+  background-color: #ffd60a;
 }
