@@ -2,13 +2,19 @@ import { html } from "../node_modules/lit-html/lit-html.js";
 import { request } from "./request.js";
 import { api } from "./api.js";
 import { formatDate, yearDifferenceCheck } from "./dateUtils.js";
+import renderSpinner from "./renderSpinner.js";
 
+let page = 1;
 export async function renderCar(ctx, next) {
+  const search = document.getElementById("search").value;
+  document.getElementById("search").value = "";
   const carId = sessionStorage.getItem("_id");
   const car = JSON.parse(sessionStorage.getItem("car"));
 
   const res = await request(
-    `${api}/service/car/${carId}?sort=-km&fields=-parts,-info,-car,-__v,&page=1&limit=10`,
+    `${api}/service/car/${carId}?sort=-km&fields=-parts,-info,-car,-__v,&page=${page}&limit=10&${
+      search ? `type=${search}` : ""
+    }`,
     {
       method: "GET",
       headers: {
@@ -133,6 +139,15 @@ export async function renderCar(ctx, next) {
         
         
         ${services ? services.map((service) => serviceTemplete(service)) : ""}
+        <div class="page-buttons">
+        <button class=${
+          page <= 1 ? "hidden" : ""
+        } @click=${prevPage}><ion-icon class="unclick" name="arrow-back-outline"></ion-icon></button>
+        <button class=${
+          services.length < 10 ? "hidden" : ""
+        } @click=${nextPage}><ion-icon class="unclick" name="arrow-forward-outline"></ion-icon></button>
+        
+        </div>
     </main>
     <aside>
       <p class="aside-text"></p>
@@ -145,10 +160,9 @@ export async function renderCar(ctx, next) {
   });
 
   async function onDeleteServiceButton(e) {
+    renderSpinner();
+    const serviceId = e.target.id;
     try {
-      closeAllServices();
-      e.target.removeEventListener("click", onDeleteServiceButton);
-      const serviceId = e.target.id;
       const res = await fetch(`${api}/service/${serviceId}`, {
         method: "DELETE",
         headers: {
@@ -157,6 +171,7 @@ export async function renderCar(ctx, next) {
       });
       if (res.ok) {
         ctx.page.redirect("/car");
+        renderSpinner();
       } else {
         throw new Error("Unauthorized!");
       }
@@ -213,6 +228,17 @@ export async function renderCar(ctx, next) {
         timer: 3000,
         className: "error-box",
       });
+    }
+  }
+
+  function nextPage() {
+    page += 1;
+    ctx.page.redirect("/car");
+  }
+  function prevPage() {
+    if (page > 1) {
+      page -= 1;
+      ctx.page.redirect("/car");
     }
   }
 }

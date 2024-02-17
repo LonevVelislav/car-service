@@ -1,7 +1,9 @@
 import { html } from "../node_modules/lit-html/lit-html.js";
 import { api } from "./api.js";
+import renderSpinner from "./renderSpinner.js";
 
 export function renderLogin(ctx, next) {
+  sessionStorage.clear();
   const templete = html`<main>
       <form @submit=${onLogin} class="add-service-form">
         <span class="service-heading sub-heading"
@@ -29,11 +31,13 @@ export function renderLogin(ctx, next) {
 
   async function onLogin(e) {
     e.preventDefault();
+
     const formData = new FormData(e.target);
     const number = formData.get("number");
     const pin = formData.get("pin");
 
     if (number && pin) {
+      renderSpinner();
       await fetch(api + "/cars/login", {
         method: "POST",
         headers: {
@@ -47,8 +51,6 @@ export function renderLogin(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
-            sessionStorage.clear();
-
             const user = res.data.user;
 
             sessionStorage.setItem("accessToken", res.token);
@@ -56,6 +58,7 @@ export function renderLogin(ctx, next) {
             sessionStorage.setItem("car", JSON.stringify(user));
 
             ctx.page.redirect(`/car`);
+            renderSpinner();
           } else {
             throw new Error(res.message);
           }

@@ -1,12 +1,14 @@
 import { render, html } from "../node_modules/lit-html/lit-html.js";
 import page from "../node_modules/page/page.mjs";
 import { api } from "./api.js";
+import renderSpinner from "./renderSpinner.js";
 
 import { renderSelect } from "./select.js";
 import { renderLogin } from "./login.js";
 import { renderRegister } from "./register.js";
 import { renderAdminLogin } from "./adminLogin.js";
 import { renderCar } from "./car.js";
+import { renderGarage } from "./garage.js";
 
 const menu = document.querySelector(".menu");
 const section = document.querySelector("section");
@@ -22,6 +24,7 @@ page("/login", renderLogin);
 page("/register", renderRegister);
 page("/admin_login", renderAdminLogin);
 page("/car", renderCar);
+page("/garage", renderGarage);
 
 page.start();
 
@@ -37,7 +40,7 @@ function renderFormMenu(ctx, next) {
 
   const car = JSON.parse(sessionStorage.getItem("car"));
 
-  const templete = html`${accessToken
+  const templete = html`${car
     ? html`<form @submit=${onUpdate}  class="menu-form">
         <a href="/car" class="menu-form-element">
           <ion-icon name="car-outline"></ion-icon>
@@ -46,10 +49,10 @@ function renderFormMenu(ctx, next) {
         <div class="menu-form-element">
           <label for="km">km</label>
           <input
-            type="text"
+            type="number"
             name="km"
             id="km"
-            value="${car.km ? car.km : ""}"
+            value="${car.km ? Number(car.km) : null}"
           />
         </div>
         <div class="menu-form-element">
@@ -75,7 +78,19 @@ function renderFormMenu(ctx, next) {
             <ion-icon name="exit-outline"></ion-icon>
         </a>
         <div class="hidden"><input type="submit" value="edit"></input></div>
-      </form>`
+      </form>
+      <form @submit=${onSearchSubmit} class="menu-form">
+      <div class="menu-form-element">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+      type="text"
+      name="search"
+      id="search"
+      placeholder="service type"
+      />
+      </div>
+      </form>
+      `
     : html`<form class="menu-form">
         <div class="menu-form-element">
           <ion-icon name="search-outline"></ion-icon>
@@ -86,10 +101,12 @@ function renderFormMenu(ctx, next) {
             placeholder="search car"
           />
         </div>
+        <div class="hidden"><input type="submit" value="edit"></input></div>
       </form>`}`;
 
   async function onUpdate(e) {
     e.preventDefault();
+
     const formData = new FormData(e.target);
 
     const km = formData.get("km");
@@ -97,6 +114,7 @@ function renderFormMenu(ctx, next) {
     const model = formData.get("model");
 
     if (km || engine || model) {
+      renderSpinner();
       await fetch(api + `/cars/${car._id}`, {
         method: "PATCH",
         headers: {
@@ -112,6 +130,7 @@ function renderFormMenu(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
+            renderSpinner();
             document.getElementById("km").value = res.data.updatedCar.km;
             sessionStorage.setItem("car", JSON.stringify(res.data.updatedCar));
             ctx.page.redirect("/car");
@@ -129,6 +148,12 @@ function renderFormMenu(ctx, next) {
     }
   }
 
+  function onSearchSubmit(e) {
+    e.preventDefault();
+
+    ctx.page.redirect("/car");
+  }
+
   ctx.renderMenu(templete);
 
   next();
@@ -139,7 +164,7 @@ function renderSectionMenu(ctx, next) {
 
   const car = JSON.parse(sessionStorage.getItem("car"));
 
-  const templete = html`${accessToken
+  const templete = html`${car
     ? html`<span class="sub-heading">Notifications</span>
         ${Object.keys(car.intervals).map((el) => {
           if (el !== "_id" && el !== "__v") {
@@ -184,6 +209,7 @@ function renderSectionMenu(ctx, next) {
   next();
 
   async function onIntervalFormSubmit(e) {
+    renderSpinner();
     e.preventDefault();
     const intervalId = e.target.id;
     const value = e.target.querySelector("input").value;
@@ -203,6 +229,7 @@ function renderSectionMenu(ctx, next) {
       .then((data) => data.json())
       .then((res) => {
         if (res.status === "success") {
+          renderSpinner();
           sessionStorage.setItem("car", JSON.stringify(res.data.car));
           ctx.page.redirect("/car");
         } else {

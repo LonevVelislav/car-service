@@ -7,10 +7,6 @@
   background-color: #b3a14c;
   cursor: pointer;
 }
-.notification-box:hover,
-.notification-box:active {
-  background-color: #ffd60a;
-}
 .notification-icon {
   width: 3rem;
 }

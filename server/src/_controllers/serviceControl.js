@@ -50,6 +50,14 @@ class ServiceFeatures {
         this.query = this.query.skip(skip).limit(limit);
         return this;
     }
+    searchByType() {
+        if (this.queryString.type) {
+            const type = this.queryString.type;
+            const regex = new RegExp(type, "i");
+            this.query = this.query.find({ type: regex });
+        }
+        return this;
+    }
 }
 
 router.get("/car/:id", carProtect, async (req, res) => {
@@ -58,7 +66,8 @@ router.get("/car/:id", carProtect, async (req, res) => {
             .filter()
             .sort()
             .filterFields()
-            .paginate();
+            .paginate()
+            .searchByType();
 
         const services = await features.query;
 
@@ -152,7 +161,7 @@ router.patch("/:id", carProtect, async (req, res) => {
 router.delete("/:id", carProtect, async (req, res) => {
     try {
         await Service.findByIdAndDelete(req.params.id);
-        res.status(204).json({
+        res.status(200).json({
             status: "success",
             data: null,
         });
