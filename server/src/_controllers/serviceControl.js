@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Service = require("../_models/Service");
+const Car = require("../_models/Car");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
 const { protect, carProtect } = require("../_middlewares/authMiddleware");
@@ -112,14 +113,16 @@ router.get("/:id", carProtect, async (req, res) => {
 
 router.post("/:id", carProtect, async (req, res) => {
     try {
+        const car = await Car.findById(req.params.id);
+        console.log(car);
         if (req.body.km) {
-            if (req.body.km > req.car.km) {
+            if (req.body.km > car.km) {
                 throw new Error("Car mileage is lower then given input!");
             }
         }
         const newService = await Service.create({
             ...req.body,
-            km: req.body.km ? req.body.km : req.car.km,
+            km: req.body.km ? req.body.km : car.km,
             car: req.params.id,
         });
         res.status(200).json({

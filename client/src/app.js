@@ -2,6 +2,7 @@ import { render, html } from "../node_modules/lit-html/lit-html.js";
 import page from "../node_modules/page/page.mjs";
 import { api } from "./api.js";
 import renderSpinner from "./renderSpinner.js";
+import { request } from "./request.js";
 
 import { renderSelect } from "./select.js";
 import { renderLogin } from "./login.js";
@@ -13,9 +14,11 @@ import { renderGarage } from "./garage.js";
 const menu = document.querySelector(".menu");
 const section = document.querySelector("section");
 const body = document.querySelector("body");
+const nav = document.querySelector("nav");
 
 page("index.html", "/");
 page(renderTempletes);
+page(renderNavBody);
 page(renderFormMenu);
 page(renderSectionMenu);
 
@@ -29,9 +32,23 @@ page("/garage", renderGarage);
 page.start();
 
 function renderTempletes(ctx, next) {
+  ctx.renderNav = (templete) => render(templete, nav);
   ctx.renderMenu = (templete) => render(templete, menu);
   ctx.renderSection = (templete) => render(templete, section);
   ctx.renderBody = (templete) => render(templete, body);
+  next();
+}
+
+function renderNavBody(ctx, next) {
+  const templete = html`<a
+    href=${sessionStorage["admin"] ? "/garage" : "/"}
+    class="logo-box"
+  >
+    <img class="logo" src="./img/logo1.png" alt="logo" />
+  </a>`;
+
+  ctx.renderNav(templete);
+
   next();
 }
 
@@ -159,50 +176,78 @@ function renderFormMenu(ctx, next) {
   next();
 }
 
-function renderSectionMenu(ctx, next) {
+async function renderSectionMenu(ctx, next) {
   const accessToken = sessionStorage.getItem("accessToken");
 
   const car = JSON.parse(sessionStorage.getItem("car"));
+  const admin = JSON.parse(sessionStorage.getItem("admin"));
+  let templete = "";
 
-  const templete = html`${car
-    ? html`<span class="sub-heading">Notifications</span>
-        ${Object.keys(car.intervals).map((el) => {
-          if (el !== "_id" && el !== "__v") {
-            return html`<a @click=${onNotificationClick} class=${
-              car.intervals[el] ? "notification-box filled" : "notification-box"
-            }>
-            <img
+  if (car) {
+    templete = html`<span class="sub-heading">Notifications</span>
+      ${Object.keys(car.intervals).map((el) => {
+        if (el !== "_id" && el !== "__v") {
+          return html`<a @click=${onNotificationClick} class=${
+            car.intervals[el] ? "notification-box filled" : "notification-box"
+          }>
+      <img
+      class="notification-icon unclick"
+      src="./img/icons/${el}-icon.png"
+      alt="${el}-icon"
+      />
+      <ion-icon class="unclick" name="arrow-down-outline"></ion-icon>
+      <div class="hidden-box">
+      <form @submit=${onIntervalFormSubmit} id=${
+            car.intervals._id
+          } class="interval-input">
+      <input
+            type=number
+            placeholder=${
+              el === "MOT" ||
+              el === "tax" ||
+              el === "roadtax" ||
+              el === "insurance"
+                ? `${el} months`
+                : `${el} intervals`
+            }
+            name=${el}
+            value=${car.intervals[el]}
+            /><button>
+            <ion-icon name="add-outline"></ion-icon>
+            </button>
+        </form>
+      </div>
+      </a>
+      </div>`;
+        }
+      })}`;
+  }
+
+  if (admin) {
+    const res = await request(`${api}/calls`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const calls = res.data.calls;
+    const pending = calls.filter((call) => call.status === "pending");
+    templete = html`<span class="sub-heading">Calls</span>
+      ${pending.map(
+        (call) => html`<a class="notification-box call">
+          <img
             class="notification-icon unclick"
-            src="./img/icons/${el}-icon.png"
-            alt="${el}-icon"
-            />
-            <ion-icon class="unclick" name="arrow-down-outline"></ion-icon>
-            <div class="hidden-box">
-            <form @submit=${onIntervalFormSubmit} id=${
-              car.intervals._id
-            } class="interval-input">
-            <input
-                  type=number
-                  placeholder=${
-                    el === "MOT" ||
-                    el === "tax" ||
-                    el === "roadtax" ||
-                    el === "insurance"
-                      ? `${el} months`
-                      : `${el} intervals`
-                  }
-                  name=${el}
-                  value=${car.intervals[el]}
-                  /><button>
-                  <ion-icon name="add-outline"></ion-icon>
-                  </button>
-              </form>
-            </div>
-            </a>
-            </div>`;
-          }
-        })} `
-    : html``}`;
+            src="./img/icons/${call.service}-icon.png"
+            alt="${call.service}-icon"
+          />
+
+          <ion-icon name="car-outline"></ion-icon>
+          <span>${call.car.number}</span>
+
+          <ion-icon class="pending" name="caret-forward-outline"></ion-icon>
+        </a>`
+      )} `;
+  }
 
   ctx.renderSection(templete);
 

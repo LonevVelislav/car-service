@@ -161,27 +161,30 @@ export async function renderCar(ctx, next) {
 
   async function onDeleteServiceButton(e) {
     renderSpinner();
+    const parent = e.target.parentElement.parentElement.parentElement;
     const serviceId = e.target.id;
-    try {
-      const res = await fetch(`${api}/service/${serviceId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-        },
-      });
-      if (res.ok) {
-        ctx.page.redirect("/car");
+    e.target.removeEventListener("click", onDeleteServiceButton);
+    await fetch(`${api}/service/${serviceId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    })
+      .then((data) => data.json())
+      .then((res) => {
+        if (res.status === "success") {
+          parent.remove();
+          location.reload();
+        }
         renderSpinner();
-      } else {
-        throw new Error("Unauthorized!");
-      }
-    } catch (err) {
-      swal(err.message, {
-        buttons: false,
-        timer: 3000,
-        className: "error-box",
+      })
+      .catch((err) => {
+        swal(err.message, {
+          buttons: false,
+          timer: 3000,
+          className: "error-box",
+        });
       });
-    }
   }
 
   async function onCreate(e) {

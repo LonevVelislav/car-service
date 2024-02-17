@@ -88,11 +88,10 @@ router.get("/", protect, async (req, res) => {
     }
 });
 
-router.get("/:id", carProtect, async (req, res) => {
+router.get("/:id", protect, async (req, res) => {
     try {
-        const features = new CarFeatures(Car.findById(req.params.id), req.query).filterFields();
+        const car = await Car.findById(req.params.id).populate("intervals");
 
-        const car = await features.query.populate("intervals");
         res.status(200).json({
             status: "success",
             data: {
@@ -153,6 +152,7 @@ router.patch("/:id", carProtect, async (req, res) => {
                 runValidators: true,
             }
         ).populate("intervals");
+
         res.status(201).json({
             status: "success",
             data: {

@@ -50,6 +50,7 @@ export function renderLogin(ctx, next) {
       })
         .then((data) => data.json())
         .then((res) => {
+          renderSpinner();
           if (res.status === "success") {
             const user = res.data.user;
 
@@ -58,7 +59,6 @@ export function renderLogin(ctx, next) {
             sessionStorage.setItem("car", JSON.stringify(user));
 
             ctx.page.redirect(`/car`);
-            renderSpinner();
           } else {
             throw new Error(res.message);
           }

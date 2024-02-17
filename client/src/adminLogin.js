@@ -41,11 +41,12 @@ export function renderAdminLogin(ctx, next) {
       })
         .then((data) => data.json())
         .then((res) => {
+          renderSpinner();
           if (res.status === "success") {
             sessionStorage.setItem("accessToken", res.token);
+            sessionStorage.setItem("admin", JSON.stringify(res.data.user));
 
             ctx.page.redirect(`/garage`);
-            renderSpinner();
           } else {
             throw new Error(res.message);
           }

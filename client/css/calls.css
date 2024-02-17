@@ -1,0 +1,24 @@
+.call {
+  background-color: #fff;
+}
+.call span {
+  color: #343a40;
+}
+.pending {
+  grid-column: 4;
+}
+.call-car-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.call-car-stats ion-icon {
+  font-size: 2.5rem;
+}
+.call-remove-btn {
+  border: none;
+  background-color: #ffe66c;
+  padding: 0.8rem;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
