@@ -114,7 +114,6 @@ router.get("/:id", carProtect, async (req, res) => {
 router.post("/:id", carProtect, async (req, res) => {
     try {
         const car = await Car.findById(req.params.id);
-        console.log(car);
         if (req.body.km) {
             if (req.body.km > car.km) {
                 throw new Error("Car mileage is lower then given input!");

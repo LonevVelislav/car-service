@@ -234,17 +234,24 @@ async function renderSectionMenu(ctx, next) {
     const pending = calls.filter((call) => call.status === "pending");
     templete = html`<span class="sub-heading">Calls</span>
       ${pending.map(
-        (call) => html`<a class="notification-box call">
+        (call) => html`<a
+          @click=${onPendingCallClick}
+          class="notification-box call"
+          id=${call._id}
+        >
           <img
             class="notification-icon unclick"
             src="./img/icons/${call.service}-icon.png"
             alt="${call.service}-icon"
           />
 
-          <ion-icon name="car-outline"></ion-icon>
-          <span>${call.car.number}</span>
+          <ion-icon class="unclick" name="car-outline"></ion-icon>
+          <span class="unclick">${call.car.number}</span>
 
-          <ion-icon class="pending" name="caret-forward-outline"></ion-icon>
+          <ion-icon
+            class="unclick pending"
+            name="caret-forward-outline"
+          ></ion-icon>
         </a>`
       )} `;
   }
@@ -280,6 +287,33 @@ async function renderSectionMenu(ctx, next) {
         } else {
           throw new Error(res.message);
         }
+      })
+      .catch((err) => {
+        swal(err.message, {
+          buttons: false,
+          timer: 3000,
+          className: "error-box",
+        });
+      });
+  }
+
+  async function onPendingCallClick(e) {
+    renderSpinner();
+    await fetch(`${api}/calls/${e.target.id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ status: "active" }),
+    })
+      .then((data) => data.json())
+      .then((res) => {
+        if (res.status === "success") {
+          ctx.page.redirect("/garage");
+        }
+
+        renderSpinner();
       })
       .catch((err) => {
         swal(err.message, {

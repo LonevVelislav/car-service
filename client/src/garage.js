@@ -32,7 +32,13 @@ export async function renderGarage(ctx, next) {
             src="./img/icons/${call.service}-icon.png"
             alt="${call.service}-icon"
           />
-          <button class="call-remove-btn">end service</button>
+          <button
+            @click=${onEndServiceBtn}
+            id=${call._id}
+            class="call-remove-btn"
+          >
+            end service
+          </button>
         </a>
       `
     )}
@@ -41,17 +47,47 @@ export async function renderGarage(ctx, next) {
   ctx.renderBody(templete);
 
   async function onCarClick(e) {
-    const res = await request(`${api}/cars/${e.target.id}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    console.log(res);
-    if (res.status === "success") {
-      sessionStorage.setItem("_id", res.data.car._id);
-      sessionStorage.setItem("car", JSON.stringify(res.data.car));
-      ctx.page.redirect("/car");
+    if (e.target.nodeName === "A") {
+      const res = await request(`${api}/cars/${e.target.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (res.status === "success") {
+        sessionStorage.setItem("_id", res.data.car._id);
+        sessionStorage.setItem("car", JSON.stringify(res.data.car));
+        ctx.page.redirect("/car");
+      }
+    }
+  }
+
+  async function onEndServiceBtn(e) {
+    if (e.target.nodeName === "BUTTON") {
+      renderSpinner();
+      await fetch(`${api}/calls/${e.target.id}`, {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: "finished" }),
+      })
+        .then((data) => data.json())
+        .then((res) => {
+          if (res.status === "success") {
+            ctx.page.redirect("/garage");
+          }
+
+          renderSpinner();
+        })
+        .catch((err) => {
+          swal(err.message, {
+            buttons: false,
+            timer: 3000,
+            className: "error-box",
+          });
+        });
     }
   }
 }
