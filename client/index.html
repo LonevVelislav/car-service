@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <base href="/" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,7 +17,7 @@
     <link rel="apple-touch-icon" href="./img/app/logo180.png" />
     <link rel="manifest" href="manifest.webmanifest" />
 
-    <title>main-page</title>
+    <title>auto-service</title>
     <script
       defer
       src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"
@@ -27,10 +29,19 @@
     <script defer src="./src/app.js" type="module"></script>
     <link rel="stylesheet" href="./css/general.css" />
     <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/media.css" />
   </head>
   <body>
     <nav></nav>
-    <div class="menu"></div>
+    <div class="menu">
+      <button class="btn-mobile-nav">
+        <ion-icon class="icon-mobile-navigation" name="car-outline"></ion-icon>
+        <ion-icon
+          class="icon-mobile-navigation"
+          name="close-outline"
+        ></ion-icon>
+      </button>
+    </div>
     <section></section>
 
     <div class="spinner hidden">

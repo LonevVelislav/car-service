@@ -50,7 +50,6 @@ export function renderLogin(ctx, next) {
       })
         .then((data) => data.json())
         .then((res) => {
-          renderSpinner();
           if (res.status === "success") {
             const user = res.data.user;
 
@@ -70,6 +69,7 @@ export function renderLogin(ctx, next) {
             className: "error-box",
           });
         });
+      renderSpinner();
     }
   }
 

@@ -15,6 +15,15 @@ const menu = document.querySelector(".menu");
 const section = document.querySelector("section");
 const body = document.querySelector("body");
 const nav = document.querySelector("nav");
+const mobileBtn = document.querySelector(".btn-mobile-nav");
+
+mobileBtn.addEventListener("click", function () {
+  if (menu.classList.contains("nav-open")) {
+    menu.classList.remove("nav-open");
+  } else {
+    menu.classList.add("nav-open");
+  }
+});
 
 page("index.html", "/");
 page(renderTempletes);
@@ -40,14 +49,37 @@ function renderTempletes(ctx, next) {
 }
 
 function renderNavBody(ctx, next) {
-  const templete = html`<a
-    href=${sessionStorage["admin"] ? "/garage" : "/"}
-    class="logo-box"
-  >
-    <img class="logo" src="./img/logo1.png" alt="logo" />
-  </a>`;
+  const templete = html`
+    <div>
+      <a href=${sessionStorage["admin"] ? "/garage" : "/"} class="logo-box">
+        <img class="logo" src="./img/logo1.png" alt="logo" />
+      </a>
+      <button @click=${openNotificationClick} class="btn-mobile-not">
+        <ion-icon class="unclick" name="warning-outline"></ion-icon>
+      </button>
+      <button @click=${openAsideClick} class="btn-mobile-aside">
+        <ion-icon class="unclick" name="information-circle-outline"></ion-icon>
+      </button>
+    </div>
+  `;
 
   ctx.renderNav(templete);
+
+  function openNotificationClick() {
+    if (body.classList.contains("open-section")) {
+      body.classList.remove("open-section");
+    } else {
+      body.classList.add("open-section");
+    }
+  }
+
+  function openAsideClick() {
+    if (body.classList.contains("open-aside")) {
+      body.classList.remove("open-aside");
+    } else {
+      body.classList.add("open-aside");
+    }
+  }
 
   next();
 }
@@ -58,7 +90,7 @@ function renderFormMenu(ctx, next) {
   const car = JSON.parse(sessionStorage.getItem("car"));
 
   const templete = html`${car
-    ? html`<form @submit=${onUpdate}  class="menu-form">
+    ? html`<form @submit=${onUpdate}  class="mobile menu-form">
         <a href="/car" class="menu-form-element">
           <ion-icon name="car-outline"></ion-icon>
           <span>${car.number}</span>
@@ -98,25 +130,27 @@ function renderFormMenu(ctx, next) {
       </form>
       <form @submit=${onSearchSubmit} class="menu-form">
       <div class="menu-form-element">
-      <ion-icon name="search-outline"></ion-icon>
+     
       <input
       type="text"
       name="search"
       id="search"
       placeholder="service type"
       />
+      <ion-icon name="search-outline"></ion-icon>
       </div>
       </form>
       `
-    : html`<form class="menu-form">
+    : html`<form class="mobile menu-form">
         <div class="menu-form-element">
-          <ion-icon name="search-outline"></ion-icon>
+          
           <input
             type="text"
             name="search"
             id="search"
             placeholder="search car"
           />
+          <ion-icon name="search-outline"></ion-icon>
         </div>
         <div class="hidden"><input type="submit" value="edit"></input></div>
       </form>`}`;
@@ -147,7 +181,6 @@ function renderFormMenu(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
-            renderSpinner();
             document.getElementById("km").value = res.data.updatedCar.km;
             sessionStorage.setItem("car", JSON.stringify(res.data.updatedCar));
             ctx.page.redirect("/car");
@@ -162,6 +195,7 @@ function renderFormMenu(ctx, next) {
             className: "error-box",
           });
         });
+      renderSpinner();
     }
   }
 
@@ -184,7 +218,8 @@ async function renderSectionMenu(ctx, next) {
   let templete = "";
 
   if (car) {
-    templete = html`<span class="sub-heading">Notifications</span>
+    templete = html`<div class="section-menu">
+      <span class="sub-heading">Notifications</span>
       ${Object.keys(car.intervals).map((el) => {
         if (el !== "_id" && el !== "__v") {
           return html`<a @click=${onNotificationClick} class=${
@@ -220,7 +255,8 @@ async function renderSectionMenu(ctx, next) {
       </a>
       </div>`;
         }
-      })}`;
+      })}
+    </div>`;
   }
 
   if (admin) {
@@ -281,7 +317,6 @@ async function renderSectionMenu(ctx, next) {
       .then((data) => data.json())
       .then((res) => {
         if (res.status === "success") {
-          renderSpinner();
           sessionStorage.setItem("car", JSON.stringify(res.data.car));
           ctx.page.redirect("/car");
         } else {
@@ -295,6 +330,7 @@ async function renderSectionMenu(ctx, next) {
           className: "error-box",
         });
       });
+    renderSpinner();
   }
 
   async function onPendingCallClick(e) {
@@ -312,8 +348,6 @@ async function renderSectionMenu(ctx, next) {
         if (res.status === "success") {
           ctx.page.redirect("/garage");
         }
-
-        renderSpinner();
       })
       .catch((err) => {
         swal(err.message, {
@@ -322,6 +356,7 @@ async function renderSectionMenu(ctx, next) {
           className: "error-box",
         });
       });
+    renderSpinner();
   }
 
   function onNotificationClick(e) {

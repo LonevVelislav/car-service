@@ -160,10 +160,10 @@ export async function renderCar(ctx, next) {
   });
 
   async function onDeleteServiceButton(e) {
-    renderSpinner();
     const parent = e.target.parentElement.parentElement.parentElement;
     const serviceId = e.target.id;
     e.target.removeEventListener("click", onDeleteServiceButton);
+    renderSpinner();
     await fetch(`${api}/service/${serviceId}`, {
       method: "DELETE",
       headers: {
@@ -172,13 +172,14 @@ export async function renderCar(ctx, next) {
     })
       .then((data) => data.json())
       .then((res) => {
+        renderSpinner();
         if (res.status === "success") {
           parent.remove();
           location.reload();
         }
-        renderSpinner();
       })
       .catch((err) => {
+        renderSpinner();
         swal(err.message, {
           buttons: false,
           timer: 3000,

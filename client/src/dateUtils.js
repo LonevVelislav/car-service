@@ -13,7 +13,7 @@ export function formatDate(date) {
 
 export function yearDifferenceCheck(date, months) {
   const currentDate = new Date();
-  // Calculate the difference in months
+
   const monthDiff =
     (currentDate.getFullYear() - date.getFullYear()) * 12 +
     currentDate.getMonth() -

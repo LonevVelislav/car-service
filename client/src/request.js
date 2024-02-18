@@ -7,6 +7,7 @@ export async function request(url, settings) {
     renderSpinner();
     return data;
   } catch (err) {
+    renderSpinner();
     swal(err.message, {
       buttons: false,
       timer: 3000,

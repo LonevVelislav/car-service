@@ -41,7 +41,6 @@ export function renderAdminLogin(ctx, next) {
       })
         .then((data) => data.json())
         .then((res) => {
-          renderSpinner();
           if (res.status === "success") {
             sessionStorage.setItem("accessToken", res.token);
             sessionStorage.setItem("admin", JSON.stringify(res.data.user));
@@ -58,6 +57,7 @@ export function renderAdminLogin(ctx, next) {
             className: "error-box",
           });
         });
+      renderSpinner();
     }
   }
 

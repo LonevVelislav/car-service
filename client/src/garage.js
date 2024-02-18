@@ -75,13 +75,13 @@ export async function renderGarage(ctx, next) {
       })
         .then((data) => data.json())
         .then((res) => {
+          renderSpinner();
           if (res.status === "success") {
             ctx.page.redirect("/garage");
           }
-
-          renderSpinner();
         })
         .catch((err) => {
+          renderSpinner();
           swal(err.message, {
             buttons: false,
             timer: 3000,
