@@ -6,7 +6,7 @@ import renderSpinner from "./renderSpinner.js";
 export async function renderGarage(ctx, next) {
   const accessToken = sessionStorage.getItem("accessToken");
 
-  const res = await request(`${api}/calls`, {
+  const res = await request(`${api}/car-service/calls`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -47,7 +47,7 @@ export async function renderGarage(ctx, next) {
 
   async function onCarClick(e) {
     if (e.target.nodeName === "A") {
-      const res = await request(`${api}/cars/${e.target.id}`, {
+      const res = await request(`${api}/car-service/cars/${e.target.id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -64,7 +64,7 @@ export async function renderGarage(ctx, next) {
   async function onEndServiceBtn(e) {
     if (e.target.nodeName === "BUTTON") {
       renderSpinner();
-      await fetch(`${api}/calls/${e.target.id}`, {
+      await fetch(`${api}/car-service/calls/${e.target.id}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",

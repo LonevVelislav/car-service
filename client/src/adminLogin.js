@@ -29,7 +29,7 @@ export function renderAdminLogin(ctx, next) {
 
     if (username && password) {
       renderSpinner();
-      await fetch(api + "/admin/login", {
+      await fetch(api + "/car-service/admin/login", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -42,6 +42,8 @@ export function renderAdminLogin(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
+            sessionStorage.clear();
+
             sessionStorage.setItem("accessToken", res.token);
             sessionStorage.setItem("admin", JSON.stringify(res.data.user));
 

@@ -27,3 +27,20 @@
   justify-content: center;
   align-items: center;
 }
+.btn-mobile-call ion-icon {
+  position: absolute;
+}
+.call-select {
+  height: 4rem;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.btn-mobile-call:hover,
+.btn-mobile-call:active {
+  background-color: #fff;
+}
+.btn-mobile-call:hover ion-icon,
+.btn-mobile-call:active ion-icon {
+  color: #343a40;
+}

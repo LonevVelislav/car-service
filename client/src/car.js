@@ -12,7 +12,7 @@ export async function renderCar(ctx, next) {
   const car = JSON.parse(sessionStorage.getItem("car"));
 
   const res1 = await request(
-    `${api}/service/car/${carId}?fields=-parts,-info,-car,-__v,&page=${page}&limit=10&${
+    `${api}/car-service/service/car/${carId}?fields=-parts,-info,-car,-__v,&page=${page}&limit=10&${
       search ? `type=${search}` : ""
     }`,
     {
@@ -24,7 +24,7 @@ export async function renderCar(ctx, next) {
   );
 
   const res2 = await request(
-    `${api}/service/car/${carId}?fields=km,createdAt,type,`,
+    `${api}/car-service/service/car/${carId}?fields=km,createdAt,type,`,
     {
       method: "GET",
       headers: {
@@ -226,7 +226,7 @@ export async function renderCar(ctx, next) {
               info,
             };
 
-        const res = await request(`${api}/service/${carId}`, {
+        const res = await request(`${api}/car-service/service/${carId}`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
@@ -266,7 +266,7 @@ export async function renderCar(ctx, next) {
   async function onDeleteServiceButton(e) {
     const serviceId = e.target.id;
     renderSpinner();
-    await fetch(`${api}/service/${serviceId}`, {
+    await fetch(`${api}/car-service/service/${serviceId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
@@ -315,7 +315,7 @@ async function onServiceClick(e) {
       closeAllServices();
       e.target.classList.add("open");
       try {
-        const res = await request(`${api}/service/${serviceId}`, {
+        const res = await request(`${api}/car-service/service/${serviceId}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
@@ -354,7 +354,7 @@ async function addPartClick(e) {
   const partInput = hiddenBoxList.querySelector("li input");
   if (partInput.value) {
     try {
-      const res = await request(`${api}/service/${serviceId}`, {
+      const res = await request(`${api}/car-service/service/${serviceId}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",

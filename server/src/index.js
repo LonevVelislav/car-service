@@ -22,6 +22,9 @@ const io = new Server(server, {
 });
 io.on("connection", (socket) => {
     console.log(`user connected: ${socket.id}`);
+    socket.on("send_car", (data) => {
+        socket.broadcast.emit("recieve_car", data);
+    });
 });
 
 //database

@@ -1,5 +1,5 @@
-const localHost = "http://localhost:5010/car-service";
-const webHost = "https://auto-server-1xkd.onrender.com/car-service";
+const localHost = "http://localhost:5010";
+const webHost = "https://auto-server-1xkd.onrender.com";
 
 let api = localHost;
 

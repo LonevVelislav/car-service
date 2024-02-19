@@ -17,6 +17,8 @@ const body = document.querySelector("body");
 const nav = document.querySelector("nav");
 const mobileBtn = document.querySelector(".btn-mobile-nav");
 
+const socket = io(api);
+
 mobileBtn.addEventListener("click", function () {
   if (menu.classList.contains("nav-open")) {
     menu.classList.remove("nav-open");
@@ -50,6 +52,7 @@ function renderTempletes(ctx, next) {
 }
 
 function renderNavBody(ctx, next) {
+  const accessToken = sessionStorage.getItem("accessToken");
   const templete = html`
     <div>
       <a
@@ -67,13 +70,61 @@ function renderNavBody(ctx, next) {
         <ion-icon class="unclick" name="information-circle-outline"></ion-icon>
       </button>
 
-      <button class="btn-mobile-call">
+      <button @change=${onCallGarage} class="btn-mobile-call">
         <ion-icon class="unclick" name="call-outline"></ion-icon>
-      </button>
+        <select id="type" name="type" class="call-select">
+        <option value="none"></option>
+        <option>repairs</option>
+        <option value="oil">oil change</option>
+        <option>battery</option>
+        <option value="brakes">brakes/pads</option>
+        <option>cambelts</option>
+        <option>clutches</option>
+        <option>engine</option>
+        <option value="tyres">tyres/alignment</option>
+        <option>chassie</option>
+        <option>diagnostics</option>
+        <option value="cooling">cooling system</option>
+        <option>exhaust</option>
+        <option>gearbox</option>
+        <option>steering</option>
+        <option>suspension</option>
+        <option>MOT</option>
+        <option>roadtax</option>
+        <option>tax</option>
+        <option value="insurance">autocasco/insurance</option>
+      </select>
     </div>
+      </button>
+      
   `;
 
   ctx.renderNav(templete);
+
+  async function onCallGarage() {
+    const car = JSON.parse(sessionStorage.getItem("car"));
+    const select = document.querySelector(".call-select");
+    if (select.value) {
+      let payload = {
+        _id: car._id,
+        type: select.value,
+      };
+
+      await request(`${api}/car-service/calls/${car._id}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          service: select.value,
+        }),
+      });
+      socket.emit("send_car", payload);
+    }
+
+    select.value = "none";
+  }
 
   function openNotificationClick() {
     if (body.classList.contains("open-section")) {
@@ -142,27 +193,27 @@ function renderFormMenu(ctx, next) {
       </form>
       <form @submit=${onSearchSubmit} class="menu-form">
       <div class="menu-form-element">
-     
+      <ion-icon name="search-outline"></ion-icon>
       <input
       type="text"
       name="search"
       id="search"
       placeholder="service type"
       />
-      <ion-icon name="search-outline"></ion-icon>
+     
       </div>
       </form>
       `
     : html`<form class="mobile menu-form">
         <div class="menu-form-element">
-          
+        <ion-icon name="search-outline"></ion-icon>
           <input
             type="text"
             name="search"
             id="search"
             placeholder="search car"
           />
-          <ion-icon name="search-outline"></ion-icon>
+         
         </div>
         <div class="hidden"><input type="submit" value="edit"></input></div>
       </form>`}`;
@@ -178,7 +229,7 @@ function renderFormMenu(ctx, next) {
 
     if (km || engine || model) {
       renderSpinner();
-      await fetch(api + `/cars/${car._id}`, {
+      await fetch(api + `/car-service/cars/${car._id}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -272,15 +323,20 @@ async function renderSectionMenu(ctx, next) {
   }
 
   if (admin) {
-    const res = await request(`${api}/calls`, {
+    const res = await request(`${api}/car-service/calls`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    socket.on("recieve_car", (payload) => {
+      console.log("redirect");
+      ctx.page.redirect("/garage");
+    });
     const calls = res.data.calls;
     const pending = calls.filter((call) => call.status === "pending");
     templete = html`<span class="sub-heading">Calls</span>
+
       ${pending.map(
         (call) => html`<a
           @click=${onPendingCallClick}
@@ -318,7 +374,7 @@ async function renderSectionMenu(ctx, next) {
 
     obj[name] = Number(value);
 
-    await fetch(api + `/intervals/${intervalId}`, {
+    await fetch(api + `/car-service/intervals/${intervalId}`, {
       method: "PATCH",
       headers: {
         "content-type": "application/json",
@@ -347,7 +403,7 @@ async function renderSectionMenu(ctx, next) {
 
   async function onPendingCallClick(e) {
     renderSpinner();
-    await fetch(`${api}/calls/${e.target.id}`, {
+    await fetch(`${api}/car-service/calls/${e.target.id}`, {
       method: "PATCH",
       headers: {
         "content-type": "application/json",

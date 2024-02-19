@@ -3,7 +3,6 @@ import api from "./api.js";
 import renderSpinner from "./renderSpinner.js";
 
 export function renderLogin(ctx, next) {
-  sessionStorage.clear();
   const templete = html`<main>
       <form @submit=${onLogin} class="add-service-form">
         <span class="service-heading sub-heading"
@@ -38,7 +37,7 @@ export function renderLogin(ctx, next) {
 
     if (number && pin) {
       renderSpinner();
-      await fetch(api + "/cars/login", {
+      await fetch(api + "/car-service/cars/login", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -51,6 +50,7 @@ export function renderLogin(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
+            sessionStorage.clear();
             const user = res.data.user;
 
             sessionStorage.setItem("accessToken", res.token);

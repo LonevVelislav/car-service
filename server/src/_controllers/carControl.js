@@ -134,7 +134,6 @@ router.post("/login", async (req, res) => {
             string += number[i];
         }
     }
-    console.log(string);
     try {
         if (!number || !pin) {
             throw new Error("Provide registration number and pin!");
