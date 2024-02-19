@@ -1,6 +1,6 @@
 import { html } from "../node_modules/lit-html/lit-html.js";
 import { request } from "./request.js";
-import { api } from "./api.js";
+import api from "./api.js";
 import { formatDate, yearDifferenceCheck } from "./dateUtils.js";
 import renderSpinner from "./renderSpinner.js";
 
@@ -11,8 +11,8 @@ export async function renderCar(ctx, next) {
   const carId = sessionStorage.getItem("_id");
   const car = JSON.parse(sessionStorage.getItem("car"));
 
-  const res = await request(
-    `${api}/service/car/${carId}?sort=-km&fields=-parts,-info,-car,-__v,&page=${page}&limit=10&${
+  const res1 = await request(
+    `${api}/service/car/${carId}?fields=-parts,-info,-car,-__v,&page=${page}&limit=10&${
       search ? `type=${search}` : ""
     }`,
     {
@@ -22,7 +22,57 @@ export async function renderCar(ctx, next) {
       },
     }
   );
-  const services = res.data.services;
+
+  const res2 = await request(
+    `${api}/service/car/${carId}?fields=km,createdAt,type,`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    }
+  );
+
+  const services = res1.data.services;
+  const allServices = res2.data.services;
+  const serviceTemplete = (service) => html`<a
+    @click=${onServiceClick}
+    id=${service._id}
+    class="service"
+  >
+    <img
+      class="service-icon"
+      src="./img/icons/${service.type}-icon.png"
+      alt="${service.type}-icon"
+    />
+    <div class="service-text">
+      <p>date: <span class="strong">${formatDate(service.createdAt)}</span></p>
+      <p>
+        ${service.km ? html`km: <span class="strong">${service.km}</span>` : ""}
+      </p>
+    </div>
+    <ion-icon class="icon-service" name="arrow-down-outline"></ion-icon>
+    <ion-icon class="icon-service" name="close-outline"></ion-icon>
+    <div class="hidden-box">
+      <ul>
+        <li>
+          <button @click=${addPartClick} id=${service._id}>
+            <ion-icon name="add-outline"></ion-icon>
+          </button>
+          <input type="text" placeholder="add mechanical part" />
+        </li>
+      </ul>
+      <div class="flex-end">
+        <button
+          @click=${onDeleteServiceButton}
+          id=${service._id}
+          class="service-delete"
+        >
+          <ion-icon name="trash-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </a>`;
 
   const templete = html`
     <main>
@@ -84,7 +134,7 @@ export async function renderCar(ctx, next) {
       </a>
  
 </div>
-
+       
         ${Object.keys(car.intervals).map((el) => {
           let lastService;
           let condition;
@@ -94,13 +144,13 @@ export async function renderCar(ctx, next) {
             el === "roadtax" ||
             el === "insurance"
           ) {
-            lastService = getLastDateService(el, services);
+            lastService = getLastDateService(el, allServices);
             condition = yearDifferenceCheck(
               new Date(lastService.createdAt),
               car.intervals[el]
             );
           } else {
-            lastService = getLastService(el, services);
+            lastService = getLastService(el, allServices);
             condition = car.km - lastService.km >= car.intervals[el];
           }
 
@@ -134,8 +184,8 @@ export async function renderCar(ctx, next) {
             }
           }
         })}
-
-      
+        
+        
         
         
         ${services ? services.map((service) => serviceTemplete(service)) : ""}
@@ -154,39 +204,6 @@ export async function renderCar(ctx, next) {
     </aside>`;
 
   ctx.renderBody(templete);
-
-  document.querySelectorAll(".service-delete").forEach((btn) => {
-    btn.addEventListener("click", onDeleteServiceButton);
-  });
-
-  async function onDeleteServiceButton(e) {
-    const parent = e.target.parentElement.parentElement.parentElement;
-    const serviceId = e.target.id;
-    e.target.removeEventListener("click", onDeleteServiceButton);
-    renderSpinner();
-    await fetch(`${api}/service/${serviceId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-      },
-    })
-      .then((data) => data.json())
-      .then((res) => {
-        renderSpinner();
-        if (res.status === "success") {
-          parent.remove();
-          location.reload();
-        }
-      })
-      .catch((err) => {
-        renderSpinner();
-        swal(err.message, {
-          buttons: false,
-          timer: 3000,
-          className: "error-box",
-        });
-      });
-  }
 
   async function onCreate(e) {
     e.preventDefault();
@@ -245,42 +262,33 @@ export async function renderCar(ctx, next) {
       ctx.page.redirect("/car");
     }
   }
-}
 
-const serviceTemplete = (service) => html`<a
-  @click=${onServiceClick}
-  id=${service._id}
-  class="service"
->
-  <img
-    class="service-icon"
-    src="./img/icons/${service.type}-icon.png"
-    alt="${service.type}-icon"
-  />
-  <div class="service-text">
-    <p>date: <span class="strong">${formatDate(service.createdAt)}</span></p>
-    <p>
-      ${service.km ? html`km: <span class="strong">${service.km}</span>` : ""}
-    </p>
-  </div>
-  <ion-icon class="icon-service" name="arrow-down-outline"></ion-icon>
-  <ion-icon class="icon-service" name="close-outline"></ion-icon>
-  <div class="hidden-box">
-    <ul>
-      <li>
-        <button @click=${addPartClick} id=${service._id}>
-          <ion-icon name="add-outline"></ion-icon>
-        </button>
-        <input type="text" placeholder="add mechanical part" />
-      </li>
-    </ul>
-    <div class="flex-end">
-      <button id=${service._id} class="service-delete">
-        <ion-icon name="trash-outline"></ion-icon>
-      </button>
-    </div>
-  </div>
-</a>`;
+  async function onDeleteServiceButton(e) {
+    const serviceId = e.target.id;
+    renderSpinner();
+    await fetch(`${api}/service/${serviceId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+      },
+    })
+      .then((data) => data.json())
+      .then((res) => {
+        renderSpinner();
+        if (res.status === "success") {
+          ctx.page.redirect("/car");
+        }
+      })
+      .catch((err) => {
+        renderSpinner();
+        swal(err.message, {
+          buttons: false,
+          timer: 3000,
+          className: "error-box",
+        });
+      });
+  }
+}
 
 function onAddServiceClick(e) {
   if (e.target.classList.contains("add-service-btn")) {

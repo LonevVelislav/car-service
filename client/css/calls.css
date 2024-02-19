@@ -22,3 +22,8 @@
   font-size: 1.8rem;
   cursor: pointer;
 }
+.btn-mobile-call {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

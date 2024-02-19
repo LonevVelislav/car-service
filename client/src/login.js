@@ -1,5 +1,5 @@
 import { html } from "../node_modules/lit-html/lit-html.js";
-import { api } from "./api.js";
+import api from "./api.js";
 import renderSpinner from "./renderSpinner.js";
 
 export function renderLogin(ctx, next) {

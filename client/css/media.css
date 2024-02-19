@@ -19,6 +19,12 @@
     font-size: 4rem;
     color: #ffd60a;
   }
+  .car-checks {
+    display: block;
+    visibility: visible;
+    pointer-events: auto;
+    opacity: 1;
+  }
   .mobile {
     background-color: rgba(14, 50, 93, 0.6);
     backdrop-filter: blur(10px);
@@ -81,7 +87,7 @@
     border-radius: 3px;
     position: absolute;
     height: 50vh;
-    top: 15%;
+    bottom: 15%;
     left: 0;
     transform: translateX(-300%);
     opacity: 0;

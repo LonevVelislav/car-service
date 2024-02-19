@@ -28,7 +28,10 @@ class CarFeatures {
 
     sort() {
         if (this.queryString.sort) {
-            this.query = this.query.sort(this.queryString.sort);
+            const sortBy = this.queryString.sort.split(",").join(" ");
+            this.query.sort(sortBy);
+        } else {
+            this.query.sort("-createdAt");
         }
         return this;
     }
@@ -121,12 +124,22 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+    const { number, pin } = req.body;
+    let string = "";
+
+    for (let i = 0; i < number.length; i++) {
+        if (/[a-z]/g.test(number[i])) {
+            string += number[i].toUpperCase();
+        } else {
+            string += number[i];
+        }
+    }
+    console.log(string);
     try {
-        const { number, pin } = req.body;
         if (!number || !pin) {
             throw new Error("Provide registration number and pin!");
         }
-        const car = await Car.findOne({ number }).select("+pin").populate("intervals");
+        const car = await Car.findOne({ number: string }).select("+pin").populate("intervals");
         if (!car || !(await car.correctPin(pin, car.pin))) {
             throw new Error("Incorrect pin!");
         }

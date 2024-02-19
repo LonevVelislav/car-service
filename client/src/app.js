@@ -1,6 +1,6 @@
 import { render, html } from "../node_modules/lit-html/lit-html.js";
 import page from "../node_modules/page/page.mjs";
-import { api } from "./api.js";
+import api from "./api.js";
 import renderSpinner from "./renderSpinner.js";
 import { request } from "./request.js";
 
@@ -25,14 +25,15 @@ mobileBtn.addEventListener("click", function () {
   }
 });
 
-page("index.html", "/");
+page("index.html", "/login");
 page(renderTempletes);
 page(renderNavBody);
 page(renderFormMenu);
 page(renderSectionMenu);
 
-page("/", renderSelect);
+page("/", renderLogin);
 page("/login", renderLogin);
+page("/select", renderSelect);
 page("/register", renderRegister);
 page("/admin_login", renderAdminLogin);
 page("/car", renderCar);
@@ -51,14 +52,23 @@ function renderTempletes(ctx, next) {
 function renderNavBody(ctx, next) {
   const templete = html`
     <div>
-      <a href=${sessionStorage["admin"] ? "/garage" : "/"} class="logo-box">
+      <a
+        href=${sessionStorage["admin"] ? "/garage" : "/login"}
+        class="logo-box"
+      >
         <img class="logo" src="./img/logo1.png" alt="logo" />
       </a>
       <button @click=${openNotificationClick} class="btn-mobile-not">
         <ion-icon class="unclick" name="warning-outline"></ion-icon>
       </button>
+    </div>
+    <div>
       <button @click=${openAsideClick} class="btn-mobile-aside">
         <ion-icon class="unclick" name="information-circle-outline"></ion-icon>
+      </button>
+
+      <button class="btn-mobile-call">
+        <ion-icon class="unclick" name="call-outline"></ion-icon>
       </button>
     </div>
   `;
@@ -103,6 +113,7 @@ function renderFormMenu(ctx, next) {
             id="km"
             value="${car.km ? Number(car.km) : null}"
           />
+          <input class="car-checks" type="submit" value="edit"></input>
         </div>
         <div class="menu-form-element">
           <label for="model">model</label>
@@ -112,6 +123,7 @@ function renderFormMenu(ctx, next) {
             id="model"
             value="${car.model ? car.model : ""}"
           />
+          <input class="car-checks" type="submit" value="edit"></input>
         </div>
 
         <div class="menu-form-element">
@@ -122,11 +134,11 @@ function renderFormMenu(ctx, next) {
             id="engine"
             value="${car.engine ? car.engine : ""}"
           />
+          <input  class="car-checks" type="submit" value="edit"></input>
         </div>
         <a href="/login" class="exit">
             <ion-icon name="exit-outline"></ion-icon>
         </a>
-        <div class="hidden"><input type="submit" value="edit"></input></div>
       </form>
       <form @submit=${onSearchSubmit} class="menu-form">
       <div class="menu-form-element">

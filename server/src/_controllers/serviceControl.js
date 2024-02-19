@@ -3,11 +3,12 @@ const Service = require("../_models/Service");
 const Car = require("../_models/Car");
 
 const { extractErrorMsg } = require("../utils/errorHandler");
-const { protect, carProtect } = require("../_middlewares/authMiddleware");
+const { carProtect } = require("../_middlewares/authMiddleware");
 
 class ServiceFeatures {
     constructor(query, queryString) {
-        (this.query = query), (this.queryString = queryString);
+        this.query = query;
+        this.queryString = queryString;
     }
 
     filter() {
@@ -24,15 +25,6 @@ class ServiceFeatures {
         return this;
     }
 
-    sort() {
-        if (this.queryString.sort) {
-            this.query = this.query.sort(this.queryString.sort);
-        } else {
-            this.query = this.query.sort("-createdAt");
-        }
-        return this;
-    }
-
     filterFields() {
         if (this.queryString.fields) {
             const fields = this.queryString.fields.split(",").join(" ");
@@ -44,11 +36,13 @@ class ServiceFeatures {
     }
 
     paginate() {
-        const page = this.queryString.page * 1 || 1;
-        const limit = this.queryString.limit * 1 || 10;
-        const skip = (page - 1) * limit;
+        if (this.queryString.page && this.queryString.limit) {
+            const page = this.queryString.page * 1 || 1;
+            const limit = this.queryString.limit * 1 || 10;
+            const skip = (page - 1) * limit;
 
-        this.query = this.query.skip(skip).limit(limit);
+            this.query = this.query.skip(skip).limit(limit);
+        }
         return this;
     }
     searchByType() {
@@ -65,12 +59,11 @@ router.get("/car/:id", carProtect, async (req, res) => {
     try {
         const features = new ServiceFeatures(Service.find({ car: req.params.id }), req.query)
             .filter()
-            .sort()
             .filterFields()
             .paginate()
             .searchByType();
 
-        const services = await features.query;
+        const services = await features.query.sort("-km");
 
         res.status(200).json({
             status: "success",

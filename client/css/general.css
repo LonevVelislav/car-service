@@ -104,6 +104,12 @@ nav {
   pointer-events: none;
   display: none;
 }
+.car-checks {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
 main {
   padding: 1.2rem;
   overflow-y: auto;

@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const http = require("http");
+const { Server } = require("socket.io");
 const app = express();
 
 app.use(cors());
@@ -12,6 +13,18 @@ const server = http.createServer(app);
 const router = require("./router");
 app.use(express.json());
 
+//socket
+const io = new Server(server, {
+    cors: {
+        origin: process.env.CLIENT,
+        methods: ["GET", "POST", "PATCH"],
+    },
+});
+io.on("connection", (socket) => {
+    console.log(`user connected: ${socket.id}`);
+});
+
+//database
 mongoose
     .connect(process.env.DB)
     .then(async () => {
