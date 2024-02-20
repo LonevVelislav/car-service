@@ -26,16 +26,6 @@ class CarFeatures {
         return this;
     }
 
-    sort() {
-        if (this.queryString.sort) {
-            const sortBy = this.queryString.sort.split(",").join(" ");
-            this.query.sort(sortBy);
-        } else {
-            this.query.sort("-createdAt");
-        }
-        return this;
-    }
-
     filterFields() {
         if (this.queryString.fields) {
             const fields = this.queryString.fields.split(",").join(" ");
@@ -67,9 +57,8 @@ class CarFeatures {
 
 router.get("/", protect, async (req, res) => {
     try {
-        const features = new CarFeatures(Car.find(), req.query)
+        const features = new CarFeatures(Car.find().sort("-km"), req.query)
             .filter()
-            .sort()
             .filterFields()
             .paginate()
             .searchByNumber();

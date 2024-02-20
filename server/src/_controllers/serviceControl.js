@@ -57,13 +57,16 @@ class ServiceFeatures {
 
 router.get("/car/:id", carProtect, async (req, res) => {
     try {
-        const features = new ServiceFeatures(Service.find({ car: req.params.id }), req.query)
+        const features = new ServiceFeatures(
+            Service.find({ car: req.params.id }).sort("-km"),
+            req.query
+        )
             .filter()
             .filterFields()
             .paginate()
             .searchByType();
 
-        const services = await features.query.sort("-km");
+        const services = await features.query;
 
         res.status(200).json({
             status: "success",

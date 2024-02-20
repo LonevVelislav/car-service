@@ -53,6 +53,7 @@ function renderTempletes(ctx, next) {
 
 function renderNavBody(ctx, next) {
   const accessToken = sessionStorage.getItem("accessToken");
+  const car = JSON.parse(sessionStorage.getItem("car"));
   const templete = html`
     <div>
       <a
@@ -64,45 +65,41 @@ function renderNavBody(ctx, next) {
       <button @click=${openNotificationClick} class="btn-mobile-not">
         <ion-icon class="unclick" name="warning-outline"></ion-icon>
       </button>
-    </div>
-    <div>
       <button @click=${openAsideClick} class="btn-mobile-aside">
         <ion-icon class="unclick" name="information-circle-outline"></ion-icon>
       </button>
-
-      <button @change=${onCallGarage} class="btn-mobile-call">
-        <ion-icon class="unclick" name="call-outline"></ion-icon>
-        <select id="type" name="type" class="call-select">
-        <option value="none"></option>
-        <option>repairs</option>
-        <option value="oil">oil change</option>
-        <option>battery</option>
-        <option value="brakes">brakes/pads</option>
-        <option>cambelts</option>
-        <option>clutches</option>
-        <option>engine</option>
-        <option value="tyres">tyres/alignment</option>
-        <option>chassie</option>
-        <option>diagnostics</option>
-        <option value="cooling">cooling system</option>
-        <option>exhaust</option>
-        <option>gearbox</option>
-        <option>steering</option>
-        <option>suspension</option>
-        <option>MOT</option>
-        <option>roadtax</option>
-        <option>tax</option>
-        <option value="insurance">autocasco/insurance</option>
-      </select>
     </div>
-      </button>
-      
+    ${car
+      ? html`<div>
+          <button @change=${onCallGarage} class="btn-mobile-call">
+            <ion-icon class="unclick" name="call-outline"></ion-icon>
+            <select id="type" name="type" class="call-select">
+              <option value="none"></option>
+              <option>repairs</option>
+              <option value="oil">oil change</option>
+              <option>battery</option>
+              <option value="brakes">brakes/pads</option>
+              <option>cambelts</option>
+              <option>clutches</option>
+              <option>engine</option>
+              <option value="tyres">tyres/alignment</option>
+              <option>chassie</option>
+              <option>diagnostics</option>
+              <option value="cooling">cooling system</option>
+              <option>exhaust</option>
+              <option>gearbox</option>
+              <option>steering</option>
+              <option>suspension</option>
+              <option>MOT</option>
+            </select>
+          </button>
+        </div>`
+      : ""}
   `;
 
   ctx.renderNav(templete);
 
   async function onCallGarage() {
-    const car = JSON.parse(sessionStorage.getItem("car"));
     const select = document.querySelector(".call-select");
     if (select.value) {
       let payload = {
@@ -110,7 +107,7 @@ function renderNavBody(ctx, next) {
         type: select.value,
       };
 
-      await request(`${api}/car-service/calls/${car._id}`, {
+      const res = await request(`${api}/car-service/calls/${car._id}`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -120,7 +117,9 @@ function renderNavBody(ctx, next) {
           service: select.value,
         }),
       });
-      socket.emit("send_car", payload);
+      if (res.status === "success") {
+        socket.emit("send_car", payload);
+      }
     }
 
     select.value = "none";
@@ -330,8 +329,11 @@ async function renderSectionMenu(ctx, next) {
       },
     });
     socket.on("recieve_car", (payload) => {
-      console.log("redirect");
-      ctx.page.redirect("/garage");
+      let data = payload ? true : false;
+      if (data) {
+        ctx.page.redirect("/garage");
+        data = false;
+      }
     });
     const calls = res.data.calls;
     const pending = calls.filter((call) => call.status === "pending");

@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const callSchema = new mongoose.Schema(
     {
+        time: {
+            type: String,
+        },
         service: {
             type: String,
             enum: {
@@ -21,6 +24,7 @@ const callSchema = new mongoose.Schema(
                     "repairs",
                     "chassie",
                     "steering",
+                    "MOT",
                 ],
                 message: "invalid service!",
             },

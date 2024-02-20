@@ -24,7 +24,7 @@ export async function renderGarage(ctx, next) {
             <ion-icon name="car-outline"></ion-icon>
           </div>
           <div class="service-text">
-            <p>started: <span class="strong">12:00</span></p>
+            <p>started: <span class="strong">${call.time}</span></p>
           </div>
           <img
             class="service-icon"

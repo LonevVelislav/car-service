@@ -23,15 +23,23 @@ router.get("/", protect, async (req, res) => {
 
 router.patch("/:id", protect, async (req, res) => {
     try {
-        const updatedCall = await Call.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
+        const date = new Date();
+        const time = `${
+            date.getHours().length === 1 ? `${0}${date.getHours()}` : date.getHours()
+        }:${date.getMinutes().length === 1 ? `${0}${date.getMinutes()}` : date.getMinutes()}`;
+        const updatedCall = await Call.findByIdAndUpdate(
+            req.params.id,
+            { time, ...req.body },
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
 
         res.status(201).json({
             status: "success",
             data: {
-                updatedCall,
+                ...updatedCall,
             },
         });
     } catch (err) {

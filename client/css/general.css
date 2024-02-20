@@ -156,3 +156,8 @@ aside {
 .error-box {
   background-color: #e9ecef;
 }
+.admin-control {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
