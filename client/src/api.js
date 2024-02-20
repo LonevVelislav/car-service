@@ -1,6 +1,6 @@
 const localHost = "http://localhost:5010";
-const webHost = "https://auto-server-7x0n.onrender.com";
+const webHost = "https://auto-server-qsun.onrender.com";
 
-let api = localHost;
+let api = webHost;
 
 export default api;

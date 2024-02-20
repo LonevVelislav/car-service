@@ -55,7 +55,7 @@ class CarFeatures {
     }
 }
 
-router.get("/", protect, async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const features = new CarFeatures(Car.find().sort("-km"), req.query)
             .filter()

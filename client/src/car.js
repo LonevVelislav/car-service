@@ -8,8 +8,8 @@ let page = 1;
 export async function renderCar(ctx, next) {
   const search = document.getElementById("search").value;
   document.getElementById("search").value = "";
-  const carId = sessionStorage.getItem("_id");
-  const car = JSON.parse(sessionStorage.getItem("car"));
+  const carId = localStorage.getItem("_id");
+  const car = JSON.parse(localStorage.getItem("car"));
 
   const res1 = await request(
     `${api}/car-service/service/car/${carId}?fields=-parts,-info,-car,-__v,&page=${page}&limit=10&${
@@ -18,7 +18,7 @@ export async function renderCar(ctx, next) {
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     }
   );
@@ -28,7 +28,7 @@ export async function renderCar(ctx, next) {
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     }
   );
@@ -209,7 +209,7 @@ export async function renderCar(ctx, next) {
   async function onCreate(e) {
     e.preventDefault();
     document.querySelector(".add-service-btn").classList.remove("open");
-    const carId = sessionStorage.getItem("_id");
+    const carId = localStorage.getItem("_id");
 
     const formData = new FormData(e.target);
     const type = formData.get("type");
@@ -231,7 +231,7 @@ export async function renderCar(ctx, next) {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify(inputBody),
         });
@@ -270,7 +270,7 @@ export async function renderCar(ctx, next) {
     await fetch(`${api}/car-service/service/${serviceId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     })
       .then((data) => data.json())
@@ -319,7 +319,7 @@ async function onServiceClick(e) {
         const res = await request(`${api}/car-service/service/${serviceId}`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         });
         if (res.status === "success") {
@@ -359,7 +359,7 @@ async function addPartClick(e) {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
           part: partInput.value,

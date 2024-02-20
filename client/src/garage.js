@@ -4,7 +4,7 @@ import api from "./api.js";
 import renderSpinner from "./renderSpinner.js";
 
 export async function renderGarage(ctx, next) {
-  const accessToken = sessionStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem("accessToken");
 
   const res = await request(`${api}/car-service/calls`, {
     method: "GET",
@@ -54,8 +54,8 @@ export async function renderGarage(ctx, next) {
         },
       });
       if (res.status === "success") {
-        sessionStorage.setItem("_id", res.data.car._id);
-        sessionStorage.setItem("car", JSON.stringify(res.data.car));
+        localStorage.setItem("_id", res.data.car._id);
+        localStorage.setItem("car", JSON.stringify(res.data.car));
         ctx.page.redirect("/car");
       }
     }

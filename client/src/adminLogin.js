@@ -42,10 +42,10 @@ export function renderAdminLogin(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
-            sessionStorage.clear();
+            localStorage.clear();
 
-            sessionStorage.setItem("accessToken", res.token);
-            sessionStorage.setItem("admin", JSON.stringify(res.data.user));
+            localStorage.setItem("accessToken", res.token);
+            localStorage.setItem("admin", JSON.stringify(res.data.user));
 
             ctx.page.redirect(`/garage`);
           } else {

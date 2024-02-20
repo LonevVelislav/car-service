@@ -50,12 +50,12 @@ export function renderLogin(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
-            sessionStorage.clear();
+            localStorage.clear();
             const user = res.data.user;
 
-            sessionStorage.setItem("accessToken", res.token);
-            sessionStorage.setItem("_id", res.data.user._id);
-            sessionStorage.setItem("car", JSON.stringify(user));
+            localStorage.setItem("accessToken", res.token);
+            localStorage.setItem("_id", res.data.user._id);
+            localStorage.setItem("car", JSON.stringify(user));
 
             ctx.page.redirect(`/car`);
           } else {

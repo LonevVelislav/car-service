@@ -17,8 +17,6 @@ const body = document.querySelector("body");
 const nav = document.querySelector("nav");
 const mobileBtn = document.querySelector(".btn-mobile-nav");
 
-const socket = io(api);
-
 mobileBtn.addEventListener("click", function () {
   if (menu.classList.contains("nav-open")) {
     menu.classList.remove("nav-open");
@@ -52,14 +50,11 @@ function renderTempletes(ctx, next) {
 }
 
 function renderNavBody(ctx, next) {
-  const accessToken = sessionStorage.getItem("accessToken");
-  const car = JSON.parse(sessionStorage.getItem("car"));
+  const accessToken = localStorage.getItem("accessToken");
+  const car = JSON.parse(localStorage.getItem("car"));
   const templete = html`
     <div>
-      <a
-        href=${sessionStorage["admin"] ? "/garage" : "/login"}
-        class="logo-box"
-      >
+      <a href=${localStorage["admin"] ? "/garage" : "/login"} class="logo-box">
         <img class="logo" src="./img/logo1.png" alt="logo" />
       </a>
       <button @click=${openNotificationClick} class="btn-mobile-not">
@@ -100,11 +95,13 @@ function renderNavBody(ctx, next) {
   ctx.renderNav(templete);
 
   async function onCallGarage() {
+    const socket = io(api);
     const select = document.querySelector(".call-select");
     if (select.value) {
       let payload = {
         _id: car._id,
         type: select.value,
+        number: car.number,
       };
 
       const res = await request(`${api}/car-service/calls/${car._id}`, {
@@ -145,9 +142,9 @@ function renderNavBody(ctx, next) {
 }
 
 function renderFormMenu(ctx, next) {
-  const accessToken = sessionStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem("accessToken");
 
-  const car = JSON.parse(sessionStorage.getItem("car"));
+  const car = JSON.parse(localStorage.getItem("car"));
 
   const templete = html`${car
     ? html`<form @submit=${onUpdate}  class="mobile menu-form">
@@ -244,7 +241,7 @@ function renderFormMenu(ctx, next) {
         .then((res) => {
           if (res.status === "success") {
             document.getElementById("km").value = res.data.updatedCar.km;
-            sessionStorage.setItem("car", JSON.stringify(res.data.updatedCar));
+            localStorage.setItem("car", JSON.stringify(res.data.updatedCar));
             ctx.page.redirect("/car");
           } else {
             throw new Error(res.message);
@@ -273,10 +270,11 @@ function renderFormMenu(ctx, next) {
 }
 
 async function renderSectionMenu(ctx, next) {
-  const accessToken = sessionStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem("accessToken");
 
-  const car = JSON.parse(sessionStorage.getItem("car"));
-  const admin = JSON.parse(sessionStorage.getItem("admin"));
+  const car = JSON.parse(localStorage.getItem("car"));
+  const admin = JSON.parse(localStorage.getItem("admin"));
+
   let templete = "";
 
   if (car) {
@@ -328,40 +326,45 @@ async function renderSectionMenu(ctx, next) {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+
+    const socket = io(api);
     socket.on("recieve_car", (payload) => {
-      let data = payload ? true : false;
-      if (data) {
+      if (payload) {
+        socket.disconnect();
         ctx.page.redirect("/garage");
-        data = false;
       }
     });
-    const calls = res.data.calls;
-    const pending = calls.filter((call) => call.status === "pending");
-    templete = html`<span class="sub-heading">Calls</span>
 
-      ${pending.map(
-        (call) => html`<a
-          @click=${onPendingCallClick}
-          class="notification-box call"
-          id=${call._id}
-        >
-          <img
-            class="notification-icon unclick"
-            src="./img/icons/${call.service}-icon.png"
-            alt="${call.service}-icon"
-          />
+    if (res.status === "success") {
+      const calls = res.data.calls;
+      const pending = calls.filter((call) => call.status === "pending");
+      templete = html`<span class="sub-heading">Calls</span>
 
-          <ion-icon class="unclick" name="car-outline"></ion-icon>
-          <span class="unclick">${call.car.number}</span>
+        ${pending
+          ? pending.map(
+              (call) => html`<a
+                @click=${onPendingCallClick}
+                class="notification-box call"
+                id=${call._id}
+              >
+                <img
+                  class="notification-icon unclick"
+                  src="./img/icons/${call.service}-icon.png"
+                  alt="${call.service}-icon"
+                />
 
-          <ion-icon
-            class="unclick pending"
-            name="caret-forward-outline"
-          ></ion-icon>
-        </a>`
-      )} `;
+                <ion-icon class="unclick" name="car-outline"></ion-icon>
+                <span class="unclick">${call.car.number}</span>
+
+                <ion-icon
+                  class="unclick pending"
+                  name="caret-forward-outline"
+                ></ion-icon>
+              </a>`
+            )
+          : ""} `;
+    }
   }
-
   ctx.renderSection(templete);
 
   next();
@@ -387,7 +390,7 @@ async function renderSectionMenu(ctx, next) {
       .then((data) => data.json())
       .then((res) => {
         if (res.status === "success") {
-          sessionStorage.setItem("car", JSON.stringify(res.data.car));
+          localStorage.setItem("car", JSON.stringify(res.data.car));
           ctx.page.redirect("/car");
         } else {
           throw new Error(res.message);
@@ -416,17 +419,18 @@ async function renderSectionMenu(ctx, next) {
       .then((data) => data.json())
       .then((res) => {
         if (res.status === "success") {
+          renderSpinner();
           ctx.page.redirect("/garage");
         }
       })
       .catch((err) => {
+        renderSpinner();
         swal(err.message, {
           buttons: false,
           timer: 3000,
           className: "error-box",
         });
       });
-    renderSpinner();
   }
 
   function onNotificationClick(e) {

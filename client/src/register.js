@@ -50,10 +50,10 @@ export function renderRegister(ctx, next) {
         .then((data) => data.json())
         .then((res) => {
           if (res.status === "success") {
-            sessionStorage.clear();
-            sessionStorage.setItem("accessToken", res.token);
-            sessionStorage.setItem("_id", res.data.user._id);
-            sessionStorage.setItem("car", JSON.stringify(res.data.user));
+            localStorage.clear();
+            localStorage.setItem("accessToken", res.token);
+            localStorage.setItem("_id", res.data.user._id);
+            localStorage.setItem("car", JSON.stringify(res.data.user));
 
             ctx.page.redirect(`/car`);
           } else {
